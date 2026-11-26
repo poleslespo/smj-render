@@ -43,7 +43,10 @@ jobs:
 
   render:
     needs: plan
-    runs-on: ubuntu-latest
+    # Pinned: Playwright 1.57.0 --with-deps cannot install OS dependencies on
+    # ubuntu-26.04 (ubuntu-latest as of 2026-11) — run 45820805381 failed all
+    # 10 jobs at the install step. ubuntu-24.04 is fully supported.
+    runs-on: ubuntu-24.04
     timeout-minutes: 180
     strategy:
       fail-fast: false
