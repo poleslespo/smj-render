@@ -33,6 +33,11 @@ on:
         required: false
         default: 2
         type: number
+      comp_id:
+        description: "Remotion composition id (COMP_ID env for scripts/render.mjs)"
+        required: false
+        default: PlazaShort
+        type: string
 
 jobs:
   plan:
@@ -75,6 +80,7 @@ jobs:
         working-directory: projects/${{ inputs.scene }}
         env:
           CONC: ${{ inputs.conc }}
+          COMP_ID: ${{ inputs.comp_id }}
           REMOTION_TMP: ${{ runner.temp }}/remotion-tmp
         run: |
           mkdir -p out
