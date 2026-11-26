@@ -29,7 +29,7 @@ for (const c of chunks) console.log(`${c.index} ${c.start} ${c.end}`);
 ' | while read -r idx start end; do
   f="$PULLED/seg-$EP-$idx/$EP-part-$idx.ts"
   [ -f "$f" ] || { echo "MISSING segment $idx ($f)"; exit 1; }
-  got=$(ffprobe -v error -count_frames -select_streams v:0 -show_entries stream=nb_read_frames -of csv=p=0 "$f")
+  got=$(ffprobe -v error -count_frames -select_streams v:0 -show_entries stream=nb_read_frames -of csv=p=0 "$f" | head -n 1 | tr -d '[:space:]')
   want=$((end - start))
   echo "chunk $idx: frames $got / $want"
   [ "$got" = "$want" ] || { echo "FRAME COUNT MISMATCH on chunk $idx"; exit 1; }
@@ -38,6 +38,6 @@ done
 # concat list paths are relative to the concat file's dir; segments live in $PULLED — copy them in
 for d in "$PULLED"/seg-"$EP"-*; do cp "$d"/*.ts "episodes/$EP/out/"; done
 ffmpeg -y -v error -f concat -safe 0 -i "$LIST" -c copy "episodes/$EP/out/$EP-merged.ts"
-total_got=$(ffprobe -v error -count_frames -select_streams v:0 -show_entries stream=nb_read_frames -of csv=p=0 "episodes/$EP/out/$EP-merged.ts")
+total_got=$(ffprobe -v error -count_frames -select_streams v:0 -show_entries stream=nb_read_frames -of csv=p=0 "episodes/$EP/out/$EP-merged.ts" | head -n 1 | tr -d '[:space:]')
 echo "merged: $total_got frames (expected $TOTAL)"
 [ "$total_got" = "$TOTAL" ] && echo "OK — merged segment is frame-exact" || { echo "MERGED FRAME COUNT MISMATCH"; exit 1; }

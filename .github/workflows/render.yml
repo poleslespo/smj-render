@@ -79,7 +79,7 @@ jobs:
       - name: Verify chunk frame count
         run: |
           F="episodes/${{ inputs.episode }}/out/${{ inputs.episode }}-part-${{ matrix.chunk.index }}.ts"
-          GOT=$(ffprobe -v error -count_frames -select_streams v:0 -show_entries stream=nb_read_frames -of csv=p=0 "$F")
+          GOT=$(ffprobe -v error -count_frames -select_streams v:0 -show_entries stream=nb_read_frames -of csv=p=0 "$F" | head -n 1 | tr -d '[:space:]')
           WANT=$(( ${{ matrix.chunk.end }} - ${{ matrix.chunk.start }} ))
           echo "chunk ${{ matrix.chunk.index }}: $GOT / $WANT frames"
           test "$GOT" = "$WANT"
