@@ -1,0 +1,96 @@
+name: render3d
+
+# Parallel Remotion/three.js render (cartoon_3d_short skill test): one scene,
+# split into N frame ranges, one GitHub-hosted runner per range. Each runner
+# npm-ci's the staged project, renders ONLY its range with Remotion's
+# renderMedia (scripts/render.mjs, --frames equivalent), verifies its frame
+# count and uploads an .mp4 segment artifact. Segments are pulled and
+# concatenated on the VM (tools/pull-3d.sh). The 2D workflow (render.yml) is
+# untouched. WebGL on the runners is software (SwiftShader) — render.mjs
+# passes --enable-unsafe-swiftshader, without which this Chromium generation
+# refuses to create a WebGL context at all.
+
+on:
+  workflow_dispatch:
+    inputs:
+      scene:
+        description: "Scene folder under projects/ (staged first with tools/prep-3d.sh)"
+        required: true
+        type: string
+        default: plaza3d
+      total_frames:
+        description: "Total frames of the scene"
+        required: true
+        type: number
+        default: 390
+      chunks:
+        description: "How many parallel machines"
+        required: false
+        default: 10
+        type: number
+      conc:
+        description: "Remotion concurrency per machine"
+        required: false
+        default: 2
+        type: number
+
+jobs:
+  plan:
+    runs-on: ubuntu-24.04
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: plan
+        run: |
+          MATRIX=$(node tools/chunks.mjs "${{ inputs.total_frames }}" "${{ inputs.chunks }}")
+          echo "matrix=$MATRIX" >> "$GITHUB_OUTPUT"
+          echo "chunks: $MATRIX"
+
+  render:
+    needs: plan
+    # Pinned like render.yml: ubuntu-latest is 26.04 now; stay on the known-good 24.04.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      max-parallel: 10
+      matrix:
+        chunk: ${{ fromJson(needs.plan.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install ffmpeg (ffprobe for the verify step; Remotion encodes with its own compositor)
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+
+      - name: Install project dependencies
+        working-directory: projects/${{ inputs.scene }}
+        run: npm ci --no-audit --no-fund
+
+      - name: Render chunk ${{ matrix.chunk.index }} (frames ${{ matrix.chunk.start }}-${{ matrix.chunk.end }})
+        working-directory: projects/${{ inputs.scene }}
+        env:
+          CONC: ${{ inputs.conc }}
+          REMOTION_TMP: ${{ runner.temp }}/remotion-tmp
+        run: |
+          mkdir -p out
+          node scripts/render.mjs "out/seg-${{ matrix.chunk.index }}.mp4" "${{ matrix.chunk.start }}" "$(( ${{ matrix.chunk.end }} - 1 ))"
+
+      - name: Verify chunk frame count
+        run: |
+          F="projects/${{ inputs.scene }}/out/seg-${{ matrix.chunk.index }}.mp4"
+          GOT=$(ffprobe -v error -count_frames -select_streams v:0 -show_entries stream=nb_read_frames -of csv=p=0 "$F" | head -n 1 | tr -d '[:space:]')
+          WANT=$(( ${{ matrix.chunk.end }} - ${{ matrix.chunk.start }} ))
+          echo "chunk ${{ matrix.chunk.index }}: $GOT / $WANT frames"
+          test "$GOT" = "$WANT"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: seg3d-${{ inputs.scene }}-${{ matrix.chunk.index }}
+          path: projects/${{ inputs.scene }}/out/seg-${{ matrix.chunk.index }}.mp4
+          retention-days: 1
+          if-no-files-found: error

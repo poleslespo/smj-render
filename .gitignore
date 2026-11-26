@@ -6,3 +6,9 @@ pulled/
 # committed — the workflow renders from the git checkout. Only the render
 # outputs under episodes/*/out/ stay out of git.
 node_modules/
+# 3D (Remotion/three.js) payloads: staged by tools/prep-3d.sh, outputs stay out.
+# The *.ts rule above targets .ts *segments* of the 2D flow — it must NOT eat the
+# TypeScript sources of the 3D project, so they are negated back in.
+projects/*/out/
+!projects/**/*.ts
+!projects/**/*.tsx
