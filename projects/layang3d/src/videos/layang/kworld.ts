@@ -17,7 +17,7 @@ import { TOTAL, camAt, kiteAt, sagAt, ambT, windAt, V3 } from "./story";
 const quadUp = (x0: number, x1: number, z0: number, z1: number, u: number, v: number, y: number) => {
   const g = new THREE.BufferGeometry();
   g.setAttribute("position", new THREE.Float32BufferAttribute([x0, y, z1, x1, y, z1, x1, y, z0, x0, y, z1, x1, y, z0, x0, y, z0], 3));
-  g.setAttribute("normal", new THREE.Float32BufferAttribute([0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0], 3));
+  g.setAttribute("normal", new THREE.Float32BufferAttribute([0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0], 3));
   g.setAttribute("uv", new THREE.Float32BufferAttribute([0, 0, u, 0, u, v, 0, 0, u, v, 0, v], 2));
   return g;
 };
@@ -118,8 +118,16 @@ export class World {
     b.add(boxGeo(V(-7.6, 0, -7.1), V(-5.4, 0.17, -6.6), 1), darkWood); // step
     for (const [px, pz] of [[-8.0, -9.6], [-5.0, -9.6], [-8.0, -7.4], [-5.0, -7.4]] as const)
       b.add(boxGeo(V(px - 0.055, 0.3, pz - 0.055), V(px + 0.055, 2.42, pz + 0.055), 1), darkWood);
-    const roofM = new THREE.Matrix4().makeRotationX(-0.3).setPosition(-6.5, 2.66, -8.6);
-    b.add(boxGeo(V(-2.15, -0.08, -1.85), V(2.15, 0.08, 1.85), 1), thatch, roofM);
+    // pitched thatch roof (gable, ridge along x): two slabs WITH undersides (boxGeo bottom) —
+    // the old single flat slab had no bottom face, so from any camera below it you saw straight
+    // through the roof (only its sun-lit east edge face showed, as a floating "beam")
+    const ridgeY = 3.3, slope = 0.42;
+    for (const s of [1, -1]) {
+      const m = new THREE.Matrix4().makeRotationX(s * slope)
+        .setPosition(-6.5, ridgeY - Math.sin(slope) * 1.18, -8.6 + s * Math.cos(slope) * 1.18);
+      b.add(boxGeo(V(-2.4, -0.055, -1.18), V(2.4, 0.055, 1.18), 1, true), thatch, m);
+    }
+    b.add(boxGeo(V(-8.95, ridgeY - 0.04, -8.76), V(-4.05, ridgeY + 0.08, -8.44), 1), darkWood); // ridge cap
     b.add(boxGeo(V(-8.65, 2.28, -7.02), V(-4.35, 2.46, -6.9), 1), darkWood); // front fascia under the roof edge
     b.add(boxGeo(V(-8.2, 0.34, -9.82), V(-4.8, 1.9, -9.7), 1), wood); // back wall
     // ---- south fence (behind the closing wide) ----

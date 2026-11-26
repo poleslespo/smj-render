@@ -15,7 +15,7 @@ export type LightPreset = {
 export const LIGHTS: Record<"day" | "golden", LightPreset> = {
   day: {
     az: 75, el: 48,
-    lit: [1.58, 1.5, 1.33], shade: [0.3, 0.29, 0.36], lift: [0.05, 0.06, 0.11], lambert: 0.35, sideK: 0.84, term: 0.2,
+    lit: [1.58, 1.5, 1.33], shade: [0.37, 0.36, 0.43], lift: [0.09, 0.1, 0.15], lambert: 0.35, sideK: 0.84, term: 0.2, // shade/lift raised from 0.30/0.05: shadows (the gubuk's, the houses') crushed to a hard black band in the wides
     charTint: [1.0, 0.94, 0.92], charShade: 0.86, charGrad: 0.07, bodyGrad: 0.2, sideTint: [0.92, 0.90, 0.96],
     blob: [0.62, 0.58, 0.58], actorShadow: false,
     top: "#3e7fd2", hor: "#b8d0ec", skyCurve: [0.0, 0.5, 0.6], fog: "#b8d0ec", fogNear: 25, fogFar: 300, sunDisc: "#000000",

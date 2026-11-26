@@ -84,7 +84,7 @@ export const kakekAt = (f: number): CharState => {
     const walked = u * 13.4;
     return { x, z, face: 1, pose: "stroll", phase: walked / 1.1 };
   }
-  if (f < 744) return { x: TEACH_POS[0], z: TEACH_POS[2], face: -1, pose: "teach", phase: 0 };
+  if (f < 744) return { x: TEACH_POS[0], z: TEACH_POS[2], face: 1, pose: "teach", phase: 0 }; // face +1: he stands west of Dika and teaches TOWARD him (was -1: profile + raised arm pointed away from both Dika and the kite)
   if (f < 868) return { x: TEACH_POS[0], z: TEACH_POS[2], face: 0, pose: "stand", phase: 0 };
   return { x: -0.7, z: 1.05, face: 0, pose: "stand", phase: 0 };
 };
@@ -123,7 +123,7 @@ const KITE_KEYS: Anchor[] = [
   [376, -4.8, 10.5, -5.6], [433, -4.7, 10.2, -5.55], [468, -4.4, 5.6, -5.3],
   [557, -4.3, 4.4, -5.2], [699, -4.3, 4.5, -5.2], [738, -4.1, 5.3, -5.0],
   [744, -4.0, 5.8, -4.9], [800, -7.5, 10.5, -6.5], [867, -12.5, 15.5, -8.5],
-  [930, -7.0, 17.5, -10.5], [1081, -7.0, 17.5, -10.5],
+  [930, -7.0, 15.6, -10.5], [1081, -7.0, 15.6, -10.5], // 15.6, not 17.5: at 17.5 the S7 camera crops the kite at the top edge (f950 proof)
 ];
 const kiteBase = (f: number): V3 => {
   if (f < 109) { const d = dikaAt(f); return [d.x - 0.62, 1.02, d.z + 0.18]; } // carried at his side

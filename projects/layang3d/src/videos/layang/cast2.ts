@@ -6,7 +6,7 @@
 // spool's exact design point each frame so the 3D string can anchor to it.
 import * as THREE from "three";
 import { Pool, Actor, Fx, SU } from "./cards";
-import { Pen, INK, headBlob, blobPts, bodyFront, bodySide, SKINS, KID, townsfolk, mix, shade, fxContact, Blob, Outfit, Expr } from "./toon";
+import { Pen, INK, headBlob, blobPts, bodyFront, bodySide, faceFront, faceSide, hatOn, mul, SH_SKIN, SH_CLOTH, SKINS, KID, townsfolk, mix, shade, fxContact, Blob, Outfit, Expr, limbV } from "./toon";
 import { dikaAt, kakekAt, dikaExpr, kakekExpr, cuLook, shotAt, ambT, FPS } from "./story";
 
 const LIGHT = (-120 * Math.PI) / 180;
@@ -26,89 +26,37 @@ export const lidAt = (t: number, i: number) => {
 };
 
 export const DIKA: Outfit = { ...KID };
-export const KAKEK: Outfit = { jacket: "#5d7a3a", pants: "#4a3b2c", boots: "#3a2c20", hat: "hair", hair: "#d8dde2", moustache: "#d8dde2", skin: SKINS[1], build: "adult" };
+export const KAKEK: Outfit = { jacket: "#5d7a3a", pants: "#4a3b2c", boots: "#3a2c20", hat: "peci", hair: "#d8dde2", moustache: "#d8dde2", skin: SKINS[1], build: "adult" };
 const WOMAN: Outfit = townsfolk(1);
 const MAN: Outfit = townsfolk(0);
-const KID2: Outfit = { ...KID, jacket: "#2f8f83", cap: "#2f6fb5" };
+const KID2: Outfit = { ...KID, jacket: "#2f8f83", hat: "hair", hair: "#2a1c14", skin: SKINS[3], pants: "#7a4a2b", boots: "#3a2c20" };
 
-// ---------------- face painters (template geometry, our expression set) ----------------
-type EyeK = "dot" | "small" | "happy" | "squeeze" | "shock" | "dash";
-type MouthK = "dash" | "frown" | "smirk" | "smile" | "grin" | "laugh" | "O" | "o" | "wave";
-const EXPR2: Record<string, { brow: number; eye: EyeK; mouth: MouthK; blush?: boolean }> = {
-  grin: { brow: 0.35, eye: "dot", mouth: "grin" },
-  laugh: { brow: 0.5, eye: "happy", mouth: "laugh", blush: true },
-  smile: { brow: 0.2, eye: "dot", mouth: "smile" },
-  smile_closed: { brow: 0.25, eye: "happy", mouth: "smile" },
-  shock: { brow: 1, eye: "shock", mouth: "O" },
-  nervous: { brow: 0.8, eye: "small", mouth: "wave" },
-  stern: { brow: -0.7, eye: "dot", mouth: "dash" },
-  neutral: { brow: 0, eye: "dot", mouth: "dash" },
-  relief_open: { brow: 0.6, eye: "dot", mouth: "grin" },
-};
-function eye2(p: Pen, kind: EyeK, x: number, y: number, u: number, lx: number, ly: number, lid: number) {
-  if (lid > 0.55 || kind === "dash") { p.stroke([[x - 3 * u, y + 0.8 * u], [x + 3 * u, y + 0.8 * u]], 1.15 * u, INK); return; }
-  if (kind === "happy") { p.arc(x, y + 1.4 * u, 3.4 * u, 2.7 * u, 180, 360, 1.15 * u, INK); return; }
-  if (kind === "squeeze") { p.stroke([[x - 3 * u, y + 1 * u], [x + 3 * u, y + 1 * u]], 1.2 * u, INK); return; }
-  if (kind === "shock") { p.ell(x, y, 3.2 * u, 3.6 * u, "#ffffff", 0.9 * u); p.ell(x + lx * 0.7 * u, y + ly * 0.7 * u, 1.15 * u, 1.3 * u, INK, 0); return; }
-  const ry = Math.max(0.7 * u, (kind === "small" ? 2.5 : 3.3) * u * (1 - lid * 0.65));
-  p.ell(x + lx * 0.8 * u, y + ly * 0.8 * u, 2.4 * u, ry, INK, 0);
-}
-function mouth2(p: Pen, kind: MouthK, x: number, y: number, u: number, k = 1) {
-  const w = 1.05 * u;
-  switch (kind) {
-    case "dash": p.stroke([[x - 3.4 * u * k, y], [x + 3.4 * u * k, y]], w, INK); break;
-    case "frown": p.arc(x, y + 2.8 * u, 3.2 * u * k, 2.3 * u, 202, 338, w, INK); break;
-    case "smile": p.arc(x, y - 1.6 * u, 3.6 * u * k, 2.8 * u, 22, 158, w, INK); break;
-    case "smirk": p.arc(x + 0.8 * u, y - 1.2 * u, 3 * u * k, 2.2 * u, 36, 153, w, INK); p.stroke([[x + 3.4 * u * k, y - 1.6 * u], [x + 4.4 * u * k, y - 3 * u]], w, INK); break;
-    case "wave": { const pts: Pt[] = []; for (let i = 0; i <= 8; i++) pts.push([x - 3.4 * u * k + (i / 8) * 6.8 * u * k, y + Math.sin(i * 1.6) * 0.95 * u]); p.stroke(pts, w, INK); break; }
-    case "O": p.ell(x, y + 1.2 * u, 2.7 * u * k, 3.5 * u, "#7a3325", 0.8 * u); break;
-    case "o": p.ell(x, y + 0.8 * u, 1.7 * u * k, 2.2 * u, "#7a3325", 0); break;
-    case "grin": case "laugh": {
-      const hw = (kind === "grin" ? 4.7 : 5.5) * u * k, dep = (kind === "grin" ? 6.2 : 8.2) * u;
-      const d: Pt[] = [[x - hw, y - 1 * u]];
-      for (let i = 1; i <= 10; i++) { const t = i / 10; d.push([x - hw + 2 * hw * t, y - 1 * u + Math.sin(t * Math.PI) * dep]); }
-      d.push([x + hw, y - 1 * u]);
-      p.poly(d, "#7a3325", 0.85 * u);
-      p.clip(d, () => {
-        p.poly([[x - hw, y - 1.4 * u], [x + hw, y - 1.4 * u], [x + hw, y + 0.9 * u], [x - hw, y + 0.9 * u]], "#ffffff", 0);
-        if (kind === "laugh") p.ell(x, y + dep * 0.62, hw * 0.52, dep * 0.3, "#c65b54", 0);
-      });
-      break;
-    }
-  }
-}
-export function faceSide2(p: Pen, hx: number, hy: number, W: number, exprName: string, lid: number, lx: number, ly: number, mouthOverride?: MouthK) {
-  const u = W / 100, e = EXPR2[exprName] ?? EXPR2.neutral;
-  p.stroke([[hx + 18 * u, hy - 9.5 * u - e.brow * 2 * u], [hx + 33 * u, hy - 10.5 * u - e.brow * 3.2 * u]], 1.05 * u, INK);
-  eye2(p, e.eye, hx + 26 * u, hy + 0.5 * u, u, lx, ly, lid);
-  p.stroke([[hx + 41 * u, hy + 5.5 * u], [hx + 45 * u, hy + 9.5 * u]], 1.0 * u, INK);
-  mouth2(p, mouthOverride ?? e.mouth, hx + 30 * u, hy + 20 * u, u, 0.66);
-  if (exprName === "nervous") p.ell(hx - 31 * u, hy - 4 * u, 2.3 * u, 3.6 * u, "#a8cbe0", 0);
-  if (e.blush) { p.g.globalAlpha = 0.5; p.ell(hx + 15 * u, hy + 13 * u, 4.6 * u, 2.6 * u, "#e8907c", 0); p.g.globalAlpha = 1; }
-}
-export function faceFront2(p: Pen, cx: number, cy: number, W: number, exprName: string, lid: number, lx: number, ly: number) {
-  const u = W / 100, e = EXPR2[exprName] ?? EXPR2.neutral;
-  const ex = e.eye === "shock" ? 12 : 13;
-  const bIn = e.brow < 0 ? Math.abs(e.brow) * 2.6 * u : -e.brow * 3 * u;
-  p.stroke([[cx - 19.5 * u, cy - 9 * u - e.brow * 1.6 * u], [cx - 6.5 * u, cy - 10 * u + bIn]], 1.05 * u, INK);
-  p.stroke([[cx + 19.5 * u, cy - 9 * u - e.brow * 1.6 * u], [cx + 6.5 * u, cy - 10 * u + bIn]], 1.05 * u, INK);
-  eye2(p, e.eye, cx - ex * u, cy + 0.5 * u, u, lx, ly, lid);
-  eye2(p, e.eye, cx + ex * u, cy + 0.5 * u, u, lx, ly, lid);
-  p.stroke([[cx + 1.2 * u, cy + 7.5 * u], [cx + 3.4 * u, cy + 10.5 * u]], 0.95 * u, INK);
-  mouth2(p, e.mouth, cx, cy + 20 * u, u, 1);
-  if (exprName === "nervous") p.ell(cx - 30 * u, cy - 2 * u, 2.3 * u, 3.6 * u, "#a8cbe0", 0);
-  if (e.blush) { p.g.globalAlpha = 0.5; p.ell(cx - 21 * u, cy + 12 * u, 4.6 * u, 2.6 * u, "#e8907c", 0); p.ell(cx + 21 * u, cy + 12 * u, 4.6 * u, 2.6 * u, "#e8907c", 0); p.g.globalAlpha = 1; }
-}
+// ---------------- faces: the template's own painters (toon.ts faceFront / faceSide) ----------------
+// v2's local face painters (tiny dot eyes, thin brows, front nose tick, blush) are gone:
+// every custom pose now draws its face with the template system, same as bodyFront/bodySide,
+// so the acting poses and the template poses share one face language.
 
 // ---------------- shared limbs ----------------
-const limb = (p: Pen, a: Pt, k: Pt, b: Pt, w: number, col: string) => p.stroke(curve(a, k, b), w, col);
+// crescent-taper limbs (toon.limbV): w = width at the body end; the helper tapers
+// w -> 0.87w at the joint -> 0.74w at the wrist/ankle and paints the shade crescent.
+// The joint used is the drawn curve's own midpoint, so endpoints (hands, feet, spool
+// grips) land exactly where the old single-stroke version put them.
+const limb = (p: Pen, a: Pt, k: Pt, b: Pt, w: number, col: string) => {
+  const mid = curve(a, k, b, 10)[5];
+  limbV(p, [a, mid, b], [w, w * 0.87, w * 0.74], col, LIGHT, w * 0.16);
+};
 const footS = (p: Pen, a: Pt, b: Pt, w: number, col: string) => { if (col !== INK) p.stroke([a, b], w + 3, INK); p.stroke([a, b], w, col); };
 const torsoBlob = (cx: number, cy: number, a: number, b: number, seed: number): Blob =>
   ({ a, b, nTop: 2.2, nBot: 2.5, egg: 0.1, asym: 0.06, rot: 0, noise: 0.006, seed });
-function torso(p: Pen, jacket: string, seed: number, cx: number, cy: number, a: number, b: number) {
+function torso(p: Pen, jacket: string, seed: number, cx: number, cy: number, a: number, b: number, hu: number) {
   const pts = blobPts(cx, cy, torsoBlob(cx, cy, a, b, seed * 3 + 9));
-  p.gradFill(pts, jacket, shade(jacket, 0.78), LIGHT);
+  p.gradFill(pts, jacket, mul(jacket, SH_CLOTH), LIGHT);
   p.inkRing(pts, 5 * (a / 50), 0.7);
+  // shirt buttons, same construction as bodyFront's (ink under-dot + shaded button)
+  for (let i = 0; i < 3; i++) {
+    const y = cy - 0.35 * b + i * 0.37 * b;
+    p.dot(cx + 2, y, 3 * hu, INK); p.dot(cx + 2, y, 2.2 * hu, shade(jacket, 0.7));
+  }
 }
 
 /** the kite-string spool (gelendong), drawn into the acting hand */
@@ -124,101 +72,130 @@ export function drawSpool(p: Pen, cx: number, cy: number, r: number) {
 const DK_W = () => 2 * headBlob(5, 112).a;
 function dikaHead(p: Pen, o: Outfit, cx: number, cy: number, pitchDeg: number, pivotY: number, exprName: string, lid: number, lx: number, ly: number) {
   p.rot = [rad(pitchDeg), cx, pivotY];
-  const hb = headBlob(5, 112), pts = blobPts(cx, cy, hb);
-  p.poly(pts, o.skin ?? "#f7cfa5", 0); p.inkRing(pts, 5 * (2 * hb.a / 100), 0.7);
-  p.clip(pts, () => p.poly([[cx - hb.a, cy - hb.b], [cx + hb.a, cy - hb.b], [cx + hb.a, cy - hb.b * 0.08], [cx - hb.a, cy - hb.b * 0.08]], o.cap ?? "#c23b2a", 0));
-  const brim: Pt[] = [[cx + hb.a * 0.3, cy - hb.b * 0.62], [cx + hb.a * 1.12, cy - hb.b * 0.44], [cx + hb.a * 1.1, cy - hb.b * 0.24], [cx + hb.a * 0.32, cy - hb.b * 0.4]];
-  p.poly(brim, o.cap ?? "#c23b2a", 3);
-  faceSide2(p, cx, cy, 2 * hb.a, exprName, lid, lx, ly);
+  const hb = headBlob(5, 112), pts = blobPts(cx, cy, hb), skin = o.skin ?? "#f7cfa5";
+  p.shadedFill(pts, skin, mul(skin, SH_SKIN), LIGHT, hb.a);
+  p.inkRing(pts, 5 * (2 * hb.a / 100), 0.7);
+  hatOn(p, o, pts, hb, cx, cy, LIGHT, 5, 1, true);
+  faceSide(p, cx, cy, 2 * hb.a, exprName as Expr, lid, false, skin, undefined, false, undefined, ly);
   p.rot = null;
 }
 function dikaLegs(p: Pen, o: Outfit, stance: "brace" | "planted") {
   const u = DK_W() / 100, lc = mix(o.pants, INK, 0.38);
   const far: Pt[] = stance === "brace" ? [[306, 645], [282, 808], [258, 960]] : [[304, 648], [282, 810], [268, 960]];
   const near: Pt[] = stance === "brace" ? [[294, 645], [332, 802], [348, 960]] : [[296, 648], [318, 806], [330, 960]];
-  limb(p, far[0], far[1], far[2], 6.9 * u, lc); footS(p, far[2], [far[2][0] + 17, 975], 5 * u, o.boots);
-  limb(p, near[0], near[1], near[2], 7.2 * u, lc); footS(p, near[2], [near[2][0] + 18, 975], 5.2 * u, o.boots);
+  limb(p, far[0], far[1], far[2], 15.5 * u, lc); footS(p, far[2], [far[2][0] + 19, 975], 9.5 * u, o.boots);
+  limb(p, near[0], near[1], near[2], 15.5 * u, lc); footS(p, near[2], [near[2][0] + 20, 975], 9.5 * u, o.boots);
 }
 /** S3: profile, head pitched up, both hands gripping the spool up high. Grip = [445,400]. */
 export function dikaLookUp(p: Pen, o: Outfit, exprName: string, lid: number) {
   const u = DK_W() / 100;
   dikaLegs(p, o, "brace");
-  limb(p, [316, 448], [378, 452], [432, 412], 5.2 * u, mix(o.jacket, INK, 0.68));
-  torso(p, o.jacket, 5, 300, 520, 70, 108);
+  limb(p, [316, 448], [378, 452], [429, 417], 13.5 * u, mix(o.jacket, INK, 0.68));
+  torso(p, o.jacket, 5, 300, 520, 70, 108, u);
   dikaHead(p, o, 306, 300, -20, 400, exprName, lid, 0, -1);
-  limb(p, [320, 446], [398, 428], [445, 400], 5.4 * u, o.jacket);
-  p.ell(438, 404, 3 * u, 3 * u, o.skin ?? "#f7cfa5", 0);
+  limb(p, [320, 446], [398, 428], [461, 417], 13.5 * u, o.jacket);
   drawSpool(p, 445, 400, 30);
+  p.dot(427, 420, 6.8 * u); p.dot(463, 420, 6.8 * u); // ink-dot hands gripping the spool's lower rim
 }
 /** S5: profile, holding the spool forward at waist height, head up. Grip = [400,556]. */
 export function dikaHoldSide(p: Pen, o: Outfit, exprName: string, lid: number) {
   const u = DK_W() / 100;
   dikaLegs(p, o, "planted");
-  limb(p, [314, 446], [352, 520], [392, 552], 5.2 * u, mix(o.jacket, INK, 0.68));
-  torso(p, o.jacket, 5, 300, 518, 71, 109);
+  limb(p, [314, 446], [352, 520], [380, 554], 13.5 * u, mix(o.jacket, INK, 0.68));
+  torso(p, o.jacket, 5, 300, 518, 71, 109, u);
   dikaHead(p, o, 306, 302, -13, 402, exprName, lid, 0.3, -0.7);
-  limb(p, [318, 444], [360, 512], [404, 556], 5.4 * u, o.jacket);
-  p.ell(396, 554, 3 * u, 3 * u, o.skin ?? "#f7cfa5", 0);
+  limb(p, [318, 444], [362, 514], [422, 554], 13.5 * u, o.jacket);
   drawSpool(p, 400, 556, 27);
+  p.dot(377, 557, 6.8 * u); p.dot(423, 557, 6.8 * u); // ink-dot hands gripping the spool's sides
 }
 /** S4a: full front body, arms per mode. pull spool = [331,434]; shock spool = [418,678]. */
 export function dikaFront(p: Pen, o: Outfit, exprName: string, lid: number, mode: "pull" | "shock") {
-  const u = DK_W() / 100, lc = mix(o.pants, INK, 0.38);
-  limb(p, [274, 642], [264, 802], [262, 958], 7 * u, lc); footS(p, [262, 958], [246, 975], 5 * u, o.boots);
-  limb(p, [326, 642], [338, 802], [342, 958], 7 * u, lc); footS(p, [342, 958], [358, 975], 5 * u, o.boots);
-  torso(p, o.jacket, 5, 300, 505, 74, 112);
+  const u = DK_W() / 100, lc = mix(o.pants, INK, 0.38), skin = o.skin ?? "#f7cfa5";
+  limb(p, [274, 642], [264, 802], [262, 958], 15.5 * u, lc); footS(p, [262, 958], [246, 975], 9.5 * u, o.boots);
+  limb(p, [326, 642], [338, 802], [342, 958], 15.5 * u, lc); footS(p, [342, 958], [360, 975], 9.5 * u, o.boots);
+  torso(p, o.jacket, 5, 300, 505, 74, 112, u);
+  p.stroke([[284, 402], [300, 416], [316, 402]], 2.6 * u, mix(o.jacket, INK, 0.35)); // tee collar V at the neckline
   if (mode === "pull") {
-    limb(p, [228, 396], [252, 448], [316, 438], 5.4 * u, mix(o.jacket, INK, 0.8));
-    limb(p, [372, 396], [366, 450], [346, 436], 5.4 * u, o.jacket);
-    p.ell(322, 437, 3 * u, 3 * u, o.skin ?? "#f7cfa5", 0); p.ell(342, 435, 3 * u, 3 * u, o.skin ?? "#f7cfa5", 0);
+    limb(p, [246, 428], [262, 470], [310, 436], 13.5 * u, mix(o.jacket, INK, 0.68));
+    limb(p, [354, 428], [362, 464], [352, 436], 13.5 * u, o.jacket);
     drawSpool(p, 331, 434, 26);
+    p.dot(309, 436, 6.8 * u); p.dot(353, 436, 6.8 * u); // hands gripping the spool's sides
   } else {
-    limb(p, [228, 396], [196, 540], [182, 672], 5.4 * u, mix(o.jacket, INK, 0.8));
-    limb(p, [372, 396], [404, 540], [418, 672], 5.4 * u, o.jacket);
-    p.ell(184, 676, 3 * u, 3 * u, o.skin ?? "#f7cfa5", 0); p.ell(416, 676, 3 * u, 3 * u, o.skin ?? "#f7cfa5", 0);
+    limb(p, [246, 428], [212, 545], [186, 674], 13.5 * u, mix(o.jacket, INK, 0.68));
+    limb(p, [354, 428], [392, 548], [414, 672], 13.5 * u, o.jacket);
     drawSpool(p, 418, 678, 24);
+    p.dot(184, 676, 6.8 * u); p.dot(403, 664, 6.8 * u); // free hand + hand on the spool's rim
   }
   const hb = headBlob(5, 112), pts = blobPts(300, 285, hb);
-  p.poly(pts, o.skin ?? "#f7cfa5", 0); p.inkRing(pts, 5 * u, 0.7);
-  p.clip(pts, () => p.poly([[300 - hb.a, 285 - hb.b], [300 + hb.a, 285 - hb.b], [300 + hb.a, 285 - hb.b * 0.18], [300 - hb.a, 285 - hb.b * 0.18]], o.cap ?? "#c23b2a", 0));
-  faceFront2(p, 300, 285, 2 * hb.a, exprName, lid, mode === "pull" ? 0 : -0.3, mode === "pull" ? -0.7 : -0.4);
+  p.shadedFill(pts, skin, mul(skin, SH_SKIN), LIGHT, hb.a);
+  p.inkRing(pts, 5 * u, 0.7);
+  hatOn(p, o, pts, hb, 300, 285, LIGHT, 5, 0, false);
+  faceFront(p, 300, 285, 2 * hb.a, exprName as Expr, 0, 0, lid, false, skin, undefined, false, undefined, mode === "pull" ? -0.7 : -0.4);
 }
 /** S4b: bust close-up (own geometry scale in Cast). Spool = [300,905]. */
 export function dikaCU(p: Pen, o: Outfit, exprName: string, lid: number, look: [number, number]) {
-  const u = 3.7;
-  const pts = blobPts(300, 815, torsoBlob(300, 815, 245, 250, 5 * 3 + 9));
-  p.gradFill(pts, o.jacket, shade(o.jacket, 0.78), LIGHT);
+  const u = 3.7, skin = o.skin ?? "#f7cfa5";
+  // shoulder dome: wider than tall, bottom inside the canvas (the old near-circle
+  // blob ran past y=1000 and the card edge sliced it with a straight cut)
+  const pts = blobPts(300, 770, torsoBlob(300, 770, 258, 215, 5 * 3 + 9));
+  p.gradFill(pts, o.jacket, mul(o.jacket, SH_CLOTH), LIGHT);
   p.inkRing(pts, 11, 0.7);
-  p.poly([[254, 642], [346, 642], [300, 682]], mix(o.jacket, INK, 0.72), 0);
-  limb(p, [120, 1010], [205, 940], [282, 908], 20, mix(o.jacket, INK, 0.8));
-  limb(p, [480, 1010], [395, 940], [318, 908], 20, o.jacket);
-  p.ell(284, 907, 11, 11, o.skin ?? "#f7cfa5", 0); p.ell(316, 907, 11, 11, o.skin ?? "#f7cfa5", 0);
+  p.stroke([[264, 566], [300, 594], [336, 566]], 9, mix(o.jacket, INK, 0.35)); // tee collar V (was: an unexplained dark triangle)
+  limb(p, [120, 1010], [205, 945], [274, 926], 34, mix(o.jacket, INK, 0.68));
+  limb(p, [480, 1010], [395, 945], [326, 926], 34, o.jacket);
   drawSpool(p, 300, 905, 40);
+  p.dot(272, 930, 16); p.dot(328, 930, 16); // ink-dot hands on the spool's lower rim
   const hb = headBlob(5, 185), hpts = blobPts(300, 380, hb);
-  p.poly(hpts, o.skin ?? "#f7cfa5", 0); p.inkRing(hpts, 5 * u, 0.7);
-  p.clip(hpts, () => p.poly([[300 - hb.a, 380 - hb.b], [300 + hb.a, 380 - hb.b], [300 + hb.a, 380 - hb.b * 0.2], [300 - hb.a, 380 - hb.b * 0.2]], o.cap ?? "#c23b2a", 0));
-  faceFront2(p, 300, 380, 370, exprName, lid, look[0], look[1]);
+  p.shadedFill(hpts, skin, mul(skin, SH_SKIN), LIGHT, hb.a);
+  p.inkRing(hpts, 5 * u, 0.7);
+  hatOn(p, o, hpts, hb, 300, 380, LIGHT, 5, 0, false);
+  faceFront(p, 300, 380, 370, exprName as Expr, 0, look[0], lid, false, skin, undefined, false, undefined, look[1]);
 }
 // ---------------- Kakek custom pose ----------------
 /** S5: profile, one hand raised to the string (hand at [445,385]), other hand gesturing. */
 export function kakekTeach(p: Pen, o: Outfit, exprName: string, lid: number) {
   const W = 2 * headBlob(11, 118).a, u = W / 100, lc = mix(o.pants, INK, 0.38);
-  limb(p, [304, 652], [280, 814], [266, 962], 7 * u, lc); footS(p, [266, 962], [250, 975], 5 * u, o.boots);
-  limb(p, [296, 652], [322, 812], [334, 962], 7.2 * u, lc); footS(p, [334, 962], [352, 975], 5.2 * u, o.boots);
-  limb(p, [318, 446], [348, 545], [398, 568], 5.4 * u, mix(o.jacket, INK, 0.68));
-  torso(p, o.jacket, 11, 299, 522, 79, 116);
-  limb(p, [320, 444], [392, 392], [445, 385], 5.6 * u, o.jacket);
-  p.ell(443, 386, 3 * u, 3 * u, o.skin ?? "#f5c9a0", 0);
-  p.ell(445, 385, 9, 7, null, 2.2);
-  p.ell(396, 570, 3 * u, 3 * u, o.skin ?? "#f5c9a0", 0);
+  limb(p, [304, 652], [280, 814], [266, 962], 15.5 * u, lc); footS(p, [266, 962], [250, 975], 9.5 * u, o.boots);
+  limb(p, [296, 652], [322, 812], [334, 962], 15.5 * u, lc); footS(p, [334, 962], [354, 975], 9.5 * u, o.boots);
+  limb(p, [318, 446], [348, 545], [398, 568], 13.5 * u, mix(o.jacket, INK, 0.68));
+  torso(p, o.jacket, 11, 299, 522, 79, 116, u);
+  p.dot(396, 570, 6.8 * u); // gesturing hand at the belly (was: a floating skin speck)
+  limb(p, [320, 444], [392, 392], [445, 385], 13.5 * u, o.jacket);
+  p.dot(445, 385, 6.8 * u); // raised hand (was: an unexplained ellipse ring)
   p.rot = [rad(-12), 302, 404];
-  const hb = headBlob(11, 118), pts = blobPts(308, 298, hb);
-  p.poly(pts, o.skin ?? "#f5c9a0", 0); p.inkRing(pts, 5 * u, 0.7);
-  p.clip(pts, () => p.poly([[308 - hb.a, 298 - hb.b], [308 + hb.a, 298 - hb.b], [308 + hb.a, 298 - hb.b * 0.55], [308 - hb.a, 298 - hb.b * 0.55]], o.hair ?? "#d8dde2", 0));
-  faceSide2(p, 308, 298, 2 * hb.a, exprName, lid, 0.2, -0.6, "o");
-  p.arc(308 + 31 * u, 298 + 25.5 * u, 9.5 * u, 3.6 * u, 14, 166, 3.4 * u, o.moustache ?? "#d8dde2");
+  const hb = headBlob(11, 118), pts = blobPts(308, 298, hb), skin = o.skin ?? "#f5c9a0";
+  p.shadedFill(pts, skin, mul(skin, SH_SKIN), LIGHT, hb.a);
+  p.inkRing(pts, 5 * u, 0.7);
+  hatOn(p, o, pts, hb, 308, 298, LIGHT, 11, 1, true);
+  faceSide(p, 308, 298, 2 * hb.a, exprName as Expr, lid, true, skin, o.moustache, false, "o", -0.6);
   p.rot = null;
 }
+// ---------------- character-sheet busts (head + shoulders, expression set) ----------------
+export function dikaBust(p: Pen, o: Outfit, exprName: string) {
+  const skin = o.skin ?? "#f7cfa5";
+  const pts = blobPts(300, 770, torsoBlob(300, 770, 258, 215, 5 * 3 + 9));
+  p.gradFill(pts, o.jacket, mul(o.jacket, SH_CLOTH), LIGHT);
+  p.inkRing(pts, 11, 0.7);
+  p.stroke([[264, 566], [300, 594], [336, 566]], 9, mix(o.jacket, INK, 0.35));
+  const hb = headBlob(5, 185), hpts = blobPts(300, 380, hb);
+  p.shadedFill(hpts, skin, mul(skin, SH_SKIN), LIGHT, hb.a);
+  p.inkRing(hpts, 18.5, 0.7);
+  hatOn(p, o, hpts, hb, 300, 380, LIGHT, 5, 0, false);
+  faceFront(p, 300, 380, 370, exprName as Expr, 0, 0, 0, false, skin);
+}
+export function kakekBust(p: Pen, o: Outfit, exprName: string, mouthOverride?: "o") {
+  const skin = o.skin ?? "#f5c9a0";
+  const pts = blobPts(300, 770, torsoBlob(300, 770, 258, 215, 11 * 3 + 9));
+  p.gradFill(pts, o.jacket, mul(o.jacket, SH_CLOTH), LIGHT);
+  p.inkRing(pts, 11, 0.7);
+  for (let i = 0; i < 2; i++) { const y = 650 + i * 95; p.dot(302, y, 10, INK); p.dot(302, y, 7.4, shade(o.jacket, 0.7)); }
+  const hb = headBlob(11, 185), hpts = blobPts(300, 380, hb);
+  p.shadedFill(hpts, skin, mul(skin, SH_SKIN), LIGHT, hb.a);
+  p.inkRing(hpts, 18.5, 0.7);
+  hatOn(p, o, hpts, hb, 300, 380, LIGHT, 11, 0, false);
+  faceFront(p, 300, 380, 370, exprName as Expr, 0, 0, 0, true, skin, o.moustache, false, mouthOverride);
+}
+
 // ---------------- kite + bird cards ----------------
 export function drawKiteCard(p: Pen, phase: number) {
   const cx = 350;
@@ -264,11 +241,14 @@ const tierFor = (shot: number, who: string): Tier => {
   if (who === "dika" || who === "kakek") return (shot === 0 || shot === 7) ? T_FAR : T_MID;
   return T_FAR;
 };
-/** exact near-hand endpoint of bodySide march (kid build, stride 1.5) — replicates
- *  toon.ts bodySide: IK stance hip height, hip lean rotation, swingArm geometry. */
+/** exact near-hand endpoint of bodySide march (kid build, stride 1.2) — replicates
+ *  toon.ts bodySide: IK stance hip height, hip lean rotation, swingArm geometry.
+ *  Stride 1.2, NOT 1.5: at 1.5 the half-stride (277u) exceeds the kid's leg length
+ *  (~227u), so bodySide's hipY sqrt clamps to ~0 at stride extremes and the torso
+ *  drops to the ground in a seated split for a few frames every cycle. */
 const runHand = (phase: number): [number, number] => {
   const H = headBlob(5, 112), W = 2 * H.a, HH = 2 * H.b, u = W / 100;
-  const ankY = 975 - 4 * u, legLen = 1.12 * HH - 4 * u, S = 370 * 1.5;
+  const ankY = 975 - 4 * u, legLen = 1.12 * HH - 4 * u, S = 370 * 1.2;
   const st = (ph: number) => {
     const c = (((phase + ph) % 1) + 1) % 1;
     if (c < 0.5) { const s = c / 0.5; return { x: S / 2 - S * s, s, stance: true }; }
@@ -330,7 +310,7 @@ export class Cast {
       case "runSide": {
         const q = Math.round(d.phase * 60); dkey = `dk-run-${q}-${Math.round(dlid * 4)}`;
         const hand = runHand(d.phase);
-        ddraw = (p) => { bodySide(p, o, { phase: d.phase, stride: 1.5, expr: dexpr as Expr, blink: dlid, seed: 5 }); drawSpool(p, hand[0], hand[1], 26); };
+        ddraw = (p) => { bodySide(p, o, { phase: d.phase, stride: 1.2, expr: dexpr as Expr, blink: dlid, seed: 5 }); drawSpool(p, hand[0], hand[1], 26); };
         dhand = hand; break;
       }
       case "lookUp": dkey = `dk-up-${dexpr}-${Math.round(dlid * 4)}`; ddraw = (p) => dikaLookUp(p, o, dexpr, dlid); dhand = [445, 400]; break;
@@ -344,7 +324,11 @@ export class Cast {
     this.dika.r = this.pool.req(dkey, dtier[0], dtier[1], dtier[2], ddraw);
     this.stage(this.dika, d, camPos, d.face < 0, dy);
     const hs = dGeo === cuGeo ? SU_CU : SU;
-    this.dikaHandLocal.set((dhand[0] - 300) * hs, (975 - dhand[1]) * hs, 0.03);
+    // front poses: anchor the string a step in front of the card, so the line visibly
+    // leaves the spool and crosses the chest before slipping behind the head (at z=0.03
+    // it hugged the card and the torso silhouette swallowed it — string read as head-ended)
+    const dz = (d.pose === "frontPull" || d.pose === "frontShock" || d.pose === "cu" || d.pose === "runSide") ? 0.18 : 0.03;
+    this.dikaHandLocal.set((dhand[0] - 300) * hs, (975 - dhand[1]) * hs, dz);
     this.blob(this.fxD, d.x, d.z, 0.66);
     // ---- Kakek ----
     const k = kakekAt(f), kexpr = kakekExpr(f), klid = lidAt(t, 3), ktier = tierFor(shot, "kakek");
