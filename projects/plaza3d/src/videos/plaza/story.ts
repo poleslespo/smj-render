@@ -47,7 +47,7 @@ const off = (dx: number, y: number, dz: number, lead = 0.9, fov = 40, roll = 0) 
 const KEYS: Key[] = [
   { f: 0, s: off(-2.4, 1.95, 6.6, 0.5, 42) },              // front-quarter, widest
   { f: 90, dur: 160, s: off(0.8, 1.7, 5.6, 0.9, 39) },      // drifts to a pure side track
-  { f: 240, dur: 120, s: off(2.6, 1.55, 5.6, 0.55, 38, 0.012) }, // rear-quarter, closest; fg tree sweeps past
+  { f: 240, dur: 120, s: off(1.9, 1.55, 5.6, 0.7, 38, 0.012) }, // rear-quarter, closest; fg tree sweeps past
   { f: 330, dur: 59, s: off(4.6, 2.05, 7.2, 0.45, 41, 0) },  // pulls back as he rides away
 ];
 export const camAt = (f: number): Cam => run(KEYS, f);

@@ -135,7 +135,7 @@ export class World {
     const iron = lam("ironP", () => ({ color: "#3d414c" }));
     const lampG = new THREE.CylinderGeometry(0.05, 0.08, 3.4, 8); lampG.translate(0, 1.7, 0);
     const lampH = new THREE.SphereGeometry(0.17, 10, 8);
-    for (const [x, z] of [[-11, 5.8], [16, -5.6], [-20, -5.6], [24, 5.8]] as const) {
+    for (const [x, z] of [[-13.5, 4.0], [16, -5.6], [-20, -5.6], [27.5, 3.8]] as const) { // near-side lamps kept >=2.3 m off the camera path (SKILL readability trap: a prop <2 m from the lens becomes a frame-filling blob that hides the subject)
       b.add(lampG, iron, new THREE.Matrix4().makeTranslation(x, 0, z));
       b.add(lampH, lam("lampGlass", () => ({ color: "#f7ead0" })), new THREE.Matrix4().makeTranslation(x, 3.5, z));
     }

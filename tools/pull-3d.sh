@@ -16,6 +16,7 @@ cd "$REPO_ROOT"
 RUN_ID="${4:-$(gh run list --workflow render3d.yml --status completed --limit 1 --json databaseId --jq '.[0].databaseId')}"
 echo "run: $RUN_ID"
 PULLED="pulled/$SCENE-3d"
+rm -rf "$PULLED" # gh run download refuses to overwrite; a re-pull starts clean
 mkdir -p "$PULLED" "projects/$SCENE/out"
 gh run download "$RUN_ID" --pattern "seg3d-$SCENE-*" --dir "$PULLED"
 node tools/chunks.mjs "$TOTAL" "$NCH" > /tmp/chunks3d.json
@@ -32,7 +33,7 @@ for (const c of chunks) console.log(`${c.index} ${c.start} ${c.end}`);
   want=$((end - start))
   echo "chunk $idx: frames $got / $want"
   [ "$got" = "$want" ] || { echo "FRAME COUNT MISMATCH on chunk $idx"; exit 1; }
-  echo "file '../../$f'" >> "$LIST"
+  echo "file '../../../$f'" >> "$LIST"
 done
 ffmpeg -y -v error -f concat -safe 0 -i "$LIST" -map 0:v:0 -c copy "projects/$SCENE/out/$SCENE-merged.mp4"
 total_got=$(ffprobe -v error -count_frames -select_streams v:0 -show_entries stream=nb_read_frames -of csv=p=0 "projects/$SCENE/out/$SCENE-merged.mp4" | head -n 1 | tr -d '[:space:]')
