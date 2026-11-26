@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Yang Terbang di Atas Atap — Ep.6 Kuyang</title>
+<!-- Fonts: Google Fonts, loaded at render time (needs internet once; Chrome caches them). display=block avoids a fallback-font frame. -->
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,900;1,9..144,900&family=Nunito:wght@700;800;900&display=block">
+<link rel="stylesheet" href="../../engine/core.css">
+<style>
+/* Painted storybook, night grade: deep indigo world, warm lamp amber, cream captions with a dark plum stroke. */
+:root{--ink:#22142e;--cream:#fdf3da;--gold:#ffc95e;--red:#d8403a}
+#v{background:#0a0f24;font-family:Nunito,sans-serif}
+#cap{z-index:10;top:1370px;left:60px;right:120px;font:900 64px/1.1 Nunito,sans-serif;text-transform:none;letter-spacing:0;color:#fff6df;
+  -webkit-text-stroke:14px var(--ink);paint-order:stroke fill;filter:drop-shadow(0 6px 0 rgba(10,4,20,.5))}
+#cap b{color:var(--gold);font-weight:900}
+#grain{opacity:.07}
+#paper{position:absolute;inset:0;pointer-events:none;mix-blend-mode:multiply;opacity:.14;background-size:512px 512px}
+#vig{background:radial-gradient(ellipse 88% 68% at 50% 42%,transparent 52%,rgba(4,2,12,.6) 100%)}
+</style>
+</head>
+<body>
+<div id="v">
+  <div id="world"></div>
+  <div id="flash"></div>
+  <div id="paper"></div>
+  <div id="vig"></div>
+  <div id="grain"></div>
+  <div id="cap"></div>
+</div>
+<script src="timeline.js"></script>
+<!-- painted.js draws everything; toon.js + paper.js are here only for Paper.paperTile() (the paper grain overlay) -->
+<script src="../../engine/styles/toon.js"></script>
+<script src="../../engine/styles/paper.js"></script>
+<script src="../../engine/styles/painted.js"></script>
+<script src="../../engine/core.js"></script>
+<script src="scenes.js"></script>
+<script>
+document.getElementById('paper').style.backgroundImage = `url(${Paper.paperTile()})`;
+Short.start(async () => buildEpisode(document.getElementById('world'), Short),
+  {fonts: ['italic 900 100px Fraunces', '900 100px Fraunces', '900 60px Nunito', '800 30px Nunito']});
+</script>
+</body>
+</html>

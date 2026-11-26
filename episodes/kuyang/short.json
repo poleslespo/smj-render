@@ -1,0 +1,364 @@
+{
+ "title": "Yang Terbang di Atas Atap",
+ "lang": "id",
+ "voice": {
+  "engine": "file",
+  "dir": "rec"
+ },
+ "lead": 0.35,
+ "gap": 0.12,
+ "scene_gap": 0.15,
+ "end_hold": 0.8,
+ "music_gain": 0.3,
+ "amb_gain": 0.3,
+ "fx_gain": 0.4,
+ "no_whoosh": [
+  "hook",
+  "darma1",
+  "siang",
+  "jeruju",
+  "sari",
+  "kepakan",
+  "kelelawar",
+  "jaga",
+  "buka",
+  "tenang",
+  "anjing",
+  "datang",
+  "putar",
+  "celah",
+  "dapur",
+  "lari",
+  "pasang",
+  "desis",
+  "subuh",
+  "paham",
+  "bodoh",
+  "periksa",
+  "rumahku",
+  "warga",
+  "rambut"
+ ],
+ "lines": [
+  {
+   "say": "Bayi baru lahir di kampung kami dijaga bergiliran empat puluh hari.",
+   "cap": "Bayi *baru lahir* di kampung kami *dijaga bergiliran* *empat puluh hari.*",
+   "scene": "hook"
+  },
+  {
+   "say": "Kata Pak Darma, yang terbang malam hari mengincar rumah begitu. Namanya kuyang.",
+   "cap": "Kata *Pak Darma,* yang *terbang malam hari* mengincar *rumah begitu.* Namanya *kuyang.*",
+   "scene": "darma1"
+  },
+  {
+   "say": "Siang dia perempuan biasa. Malam kepalanya lepas dan terbang mencari celah masuk.",
+   "cap": "Siang dia *perempuan biasa.* Malam *kepalanya lepas* dan *terbang* mencari *celah masuk.*",
+   "scene": "siang"
+  },
+  {
+   "say": "Kata beliau, dia tidak bisa melewati pagar jeruju. Cuma berputar di atap.",
+   "cap": "Kata beliau, dia *tidak bisa* melewati *pagar jeruju.* Cuma *berputar di atap.*",
+   "scene": "jeruju"
+  },
+  {
+   "say": "Bu Sari, tetangga kami, baru melahirkan. Rumahnya dipagari jeruju.",
+   "cap": "*Bu Sari,* tetangga kami, *baru melahirkan.* Rumahnya *dipagari jeruju.*",
+   "scene": "sari"
+  },
+  {
+   "say": "Tiga malam ini warga dengar kepakan di atapnya. Pelan. Basah.",
+   "cap": "*Tiga malam* ini warga dengar *kepakan di atapnya.* *Pelan. Basah.*",
+   "scene": "kepakan"
+  },
+  {
+   "say": "Aku bilang itu kelelawar buah. Di kebun belakang memang banyak.",
+   "cap": "Aku bilang itu *kelelawar buah.* Di *kebun belakang* memang *banyak.*",
+   "scene": "kelelawar"
+  },
+  {
+   "say": "Malam keempat aku menjaga dari kebun dengan Dito.",
+   "cap": "*Malam keempat* aku *menjaga dari kebun* dengan *Dito.*",
+   "scene": "jaga"
+  },
+  {
+   "say": "Akan kubuktikan itu cuma kelelawar. Kubuka satu ikat jeruju di sisi dapur.",
+   "cap": "Akan *kubuktikan* itu cuma *kelelawar.* *Kubuka satu ikat* jeruju di *sisi dapur.*",
+   "scene": "buka"
+  },
+  {
+   "say": "Kalau tidak ada apa-apa, warga bisa tidur tenang malam ini.",
+   "cap": "Kalau *tidak ada apa-apa,* warga bisa *tidur tenang* malam ini.",
+   "scene": "tenang"
+  },
+  {
+   "say": "Anjing tetangga merengek duluan. Hidungnya ke atas, bukan ke jalan.",
+   "cap": "*Anjing tetangga* merengek *duluan.* Hidungnya *ke atas,* bukan ke jalan.",
+   "scene": "anjing"
+  },
+  {
+   "say": "Jam satu, kepakan itu datang. Lebih lambat dari kelelawar. Lebih berat.",
+   "cap": "*Jam satu,* kepakan itu *datang.* *Lebih lambat* dari kelelawar. *Lebih berat.*",
+   "scene": "datang",
+   "pause": 0.35
+  },
+  {
+   "say": "Dia berputar di atas atap, rambut terurai, bawahnya berkibar seperti kain basah.",
+   "cap": "Dia *berputar* di atas atap, *rambut terurai,* bawahnya *berkibar* seperti *kain basah.*",
+   "scene": "putar"
+  },
+  {
+   "say": "Dia tidak pernah turun. Berputar terus, mencari satu celah.",
+   "cap": "Dia *tidak pernah turun.* Berputar terus, *mencari satu celah.*",
+   "scene": "celah"
+  },
+  {
+   "say": "Lalu putarannya berubah, menuju sisi dapur. Sisi yang kubuka pagarnya.",
+   "cap": "Lalu putarannya *berubah,* menuju *sisi dapur.* Sisi yang *kubuka pagarnya.*",
+   "scene": "dapur"
+  },
+  {
+   "say": "Aku lari membawa ikat itu. Tanganku perih kena durinya.",
+   "cap": "Aku *lari* membawa *ikat itu.* Tanganku *perih* kena *durinya.*",
+   "scene": "lari"
+  },
+  {
+   "say": "Dia melayang di celah itu waktu ikat terakhir kupasang. Bau amis menyambar.",
+   "cap": "Dia *melayang di celah itu* waktu *ikat terakhir kupasang.* *Bau amis* menyambar.",
+   "scene": "pasang",
+   "pause": 1.2
+  },
+  {
+   "say": "Dia mendesis, naik lagi ke gelap. Kepakannya menjauh ke hutan.",
+   "cap": "Dia *mendesis,* naik lagi ke *gelap.* Kepakannya *menjauh ke hutan.*",
+   "scene": "desis"
+  },
+  {
+   "say": "Menjelang subuh, hilang. Kata Pak Darma, dia harus pulang sebelum fajar.",
+   "cap": "*Menjelang subuh,* hilang. Kata *Pak Darma,* dia harus *pulang sebelum fajar.*",
+   "scene": "subuh"
+  },
+  {
+   "say": "Aku baru paham: dia tidak kuat masuk. Dia menunggu orang bodoh membuka pagarnya.",
+   "cap": "Aku *baru paham:* dia *tidak kuat masuk.* Dia *menunggu* orang bodoh *membuka pagarnya.*",
+   "scene": "paham"
+  },
+  {
+   "say": "Orang bodoh itu hampir aku. Aku yang hampir memberinya jalan.",
+   "cap": "*Orang bodoh* itu *hampir aku.* Aku yang hampir *memberinya jalan.*",
+   "scene": "bodoh"
+  },
+  {
+   "say": "Sejak itu tiap sore kuperiksa pagar rumah Bu Sari, ikat demi ikat.",
+   "cap": "Sejak itu *tiap sore* kuperiksa *pagar rumah Bu Sari,* *ikat demi ikat.*",
+   "scene": "periksa"
+  },
+  {
+   "say": "Di rumahku jeruju sekarang mengelilingi halaman. Tidak kubiarkan ada celah.",
+   "cap": "Di *rumahku* jeruju sekarang *mengelilingi halaman.* Tidak kubiarkan *ada celah.*",
+   "scene": "rumahku"
+  },
+  {
+   "say": "Warga tak lagi menyebutnya kelelawar. Anjing merengek ke atas sekarang didengarkan.",
+   "cap": "Warga *tak lagi* menyebutnya *kelelawar.* Anjing *merengek ke atas* sekarang *didengarkan.*",
+   "scene": "warga"
+  },
+  {
+   "say": "Di ikat jeruju itu tersangkut sehelai rambut panjang. Tak ada yang berani mencabutnya.",
+   "cap": "Di ikat jeruju itu *tersangkut* sehelai *rambut panjang.* Tak ada yang *berani mencabutnya.*",
+   "scene": "rambut"
+  }
+ ],
+ "score": [
+  [
+   "S1",
+   "tense",
+   0.24
+  ],
+  [
+   "L5",
+   "tense",
+   0.3
+  ],
+  [
+   "L10",
+   "tense",
+   0.38
+  ],
+  [
+   "L11",
+   "tense",
+   0.44
+  ],
+  [
+   "L15%55",
+   "silence",
+   0
+  ],
+  [
+   "L16%12",
+   "tense",
+   0.2
+  ],
+  [
+   "L18",
+   "tense",
+   0.26
+  ],
+  [
+   "L20",
+   "tense",
+   0.2
+  ],
+  [
+   "L22",
+   "tense",
+   0.14
+  ]
+ ],
+ "amb": [
+  [
+   "0",
+   "L10e",
+   "wind",
+   0.3,
+   0
+  ],
+  [
+   "L10e",
+   "L12",
+   "wind",
+   0.22,
+   0
+  ],
+  [
+   "L12",
+   "L15%55",
+   "wind",
+   0.3,
+   0
+  ],
+  [
+   "L15%55",
+   "L16%40",
+   "wind",
+   0.05,
+   0
+  ],
+  [
+   "L16%40",
+   "L23e",
+   "wind",
+   0.26,
+   0
+  ],
+  [
+   "L23e",
+   "L24e",
+   "wind",
+   0.18,
+   0
+  ]
+ ],
+ "sfx": [
+  [
+   "0.05",
+   "impact",
+   0.6
+  ],
+  [
+   "0.05",
+   "sub",
+   0.5
+  ],
+  [
+   "L5%30",
+   "swish",
+   0.18
+  ],
+  [
+   "L5%55",
+   "swish",
+   0.16
+  ],
+  [
+   "L5%80",
+   "swish",
+   0.15
+  ],
+  [
+   "L10%10",
+   "heartbeat",
+   0.5
+  ],
+  [
+   "L11%20",
+   "heartbeat",
+   0.7
+  ],
+  [
+   "L11%55",
+   "riser",
+   0.35
+  ],
+  [
+   "L12",
+   "impact",
+   0.35
+  ],
+  [
+   "L12",
+   "sub",
+   0.3
+  ],
+  [
+   "L13%40",
+   "swish",
+   0.14
+  ],
+  [
+   "L14%30",
+   "swish",
+   0.16
+  ],
+  [
+   "L14%65",
+   "swish",
+   0.14
+  ],
+  [
+   "L15%55",
+   "hit",
+   0.22
+  ],
+  [
+   "L16",
+   "impact",
+   0.85
+  ],
+  [
+   "L16",
+   "sub",
+   0.7
+  ],
+  [
+   "L16%70",
+   "hit",
+   0.3
+  ],
+  [
+   "L17",
+   "swish",
+   0.3
+  ],
+  [
+   "L17%50",
+   "swish",
+   0.2
+  ],
+  [
+   "L17%75",
+   "swish",
+   0.15
+  ]
+ ]
+}
