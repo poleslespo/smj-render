@@ -1,0 +1,89 @@
+name: render
+
+# Parallel cartoon-shorts render: one episode, split into N frame chunks,
+# one GitHub-hosted runner per chunk, each producing a video-only .ts segment
+# uploaded as a workflow artifact. Segments are pulled down and concatenated
+# on the VM (tools/pull-and-concat.sh); audio is muxed there, same as the
+# Simular Box flow. See README.md in this repo's parent folder.
+
+on:
+  workflow_dispatch:
+    inputs:
+      episode:
+        description: "Episode folder under episodes/ (staged first with tools/prep-episode.sh)"
+        required: true
+        type: string
+      total_frames:
+        description: "Total frames of the episode (ceil(duration x fps))"
+        required: true
+        type: number
+      chunks:
+        description: "How many parallel machines"
+        required: false
+        default: 10
+        type: number
+      workers:
+        description: "Chrome workers per machine (render-part WORKERS)"
+        required: false
+        default: 2
+        type: number
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: plan
+        run: |
+          MATRIX=$(node tools/chunks.mjs "${{ inputs.total_frames }}" "${{ inputs.chunks }}")
+          echo "matrix=$MATRIX" >> "$GITHUB_OUTPUT"
+          echo "chunks: $MATRIX"
+
+  render:
+    needs: plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      max-parallel: 10
+      matrix:
+        chunk: ${{ fromJson(needs.plan.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install ffmpeg + Playwright Chromium
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+          npx -y playwright@1.57.0 install --with-deps chromium
+
+      - name: Render chunk ${{ matrix.chunk.index }} (frames ${{ matrix.chunk.start }}-${{ matrix.chunk.end }})
+        env:
+          FRAME_START: ${{ matrix.chunk.start }}
+          FRAME_END: ${{ matrix.chunk.end }}
+          WORKERS: ${{ inputs.workers }}
+          OUT: episodes/${{ inputs.episode }}/out/${{ inputs.episode }}-part-${{ matrix.chunk.index }}.ts
+        run: |
+          export CHROME_PATH="$(find "$HOME/.cache/ms-playwright" -type f \( -name chrome -o -name headless_shell \) | head -1)"
+          echo "chrome: $CHROME_PATH"
+          node engine/render-part.mjs "episodes/${{ inputs.episode }}" full
+
+      - name: Verify chunk frame count
+        run: |
+          F="episodes/${{ inputs.episode }}/out/${{ inputs.episode }}-part-${{ matrix.chunk.index }}.ts"
+          GOT=$(ffprobe -v error -count_frames -select_streams v:0 -show_entries stream=nb_read_frames -of csv=p=0 "$F")
+          WANT=$(( ${{ matrix.chunk.end }} - ${{ matrix.chunk.start }} ))
+          echo "chunk ${{ matrix.chunk.index }}: $GOT / $WANT frames"
+          test "$GOT" = "$WANT"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: seg-${{ inputs.episode }}-${{ matrix.chunk.index }}
+          path: episodes/${{ inputs.episode }}/out/${{ inputs.episode }}-part-${{ matrix.chunk.index }}.ts
+          retention-days: 1
+          if-no-files-found: error

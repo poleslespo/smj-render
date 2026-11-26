@@ -1,0 +1,8 @@
+# render outputs and pulled artifacts never belong in git
+episodes/*/out/
+pulled/
+*.ts
+# episode payloads are staged per-run by tools/prep-episode.sh; keep the folder, not the payloads
+episodes/*/
+!episodes/.gitkeep
+node_modules/
