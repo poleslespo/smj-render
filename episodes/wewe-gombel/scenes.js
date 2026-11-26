@@ -159,12 +159,20 @@ window.buildEpisode = (world, S) => {
   const Darma7 = (p, { x = 0, y = 0, s = 1 } = {}) => {
     const C = { skin: '#bd8256', hair: '#cfc8bd', shirt: '#ddd6c4', shirtD: '#b3ab97', sarung: '#2f4a38', sarungL: '#476b52', shoe: '#2a1c12' };
     const root = E('g', {}, p), g = E('g', {}, root);
-    E('ellipse', { cx: 0, cy: 6, rx: 84, ry: 12, fill: '#000', opacity: .28 }, g);
+    const shad = E('ellipse', { cx: 0, cy: 6, rx: 84, ry: 12, fill: '#000', opacity: .28 }, g);
     const legs = legKit(g, { L1: 146, L2: 136, wO: 38, wF: 30, cloth: '#38322a', shoe: C.shoe });
     const sar = E('g', {}, g);
     E('path', { d: 'M-62,-306 L62,-306 L76,-92 L-76,-92 Z', fill: C.sarung, ...st(4) }, sar);
     [-36, 0, 36].forEach(lx => E('path', { d: `M${lx},-304 L${lx},-94`, stroke: C.sarungL, 'stroke-width': 3, opacity: .5 }, sar));
     E('path', { d: 'M-62,-306 L62,-306 L64,-278 L-64,-278Z', fill: '#223829' }, sar);
+    // MODE DUDUK: sarung = massa kain utuh melebar ke hem; kaki tersembunyi di
+    // dalam kain, hanya ujung sepatu berdampingan mengintip di bawah hem.
+    const seatG = E('g', {}, g);
+    [-1, 1].forEach(sd => E('ellipse', { cx: sd * 34, cy: -156, rx: 25, ry: 11, fill: C.shoe, ...st(2.5) }, seatG));
+    E('path', { d: 'M-64,-306 L64,-306 L110,-166 L-110,-166 Z', fill: C.sarung, ...st(4) }, seatG);
+    [-54, 0, 54].forEach(lx => E('path', { d: `M${lx},-302 L${lx * 1.55},-172`, stroke: C.sarungL, 'stroke-width': 3, opacity: .5 }, seatG));
+    E('path', { d: 'M-64,-306 L64,-306 L66,-276 L-66,-276Z', fill: '#223829' }, seatG);
+    seatG.style.display = 'none';
     const up = E('g', {}, g);
     E('path', { d: 'M-58,-508 C-64,-444 -62,-370 -56,-300 L56,-300 C62,-370 64,-444 58,-508 Q0,-530 -58,-508Z', fill: C.shirt, ...st(4) }, up);
     E('path', { d: 'M58,-508 C64,-444 62,-370 56,-300 L36,-300 C44,-372 46,-442 40,-504Z', fill: C.shirtD }, up);
@@ -193,8 +201,13 @@ window.buildEpisode = (world, S) => {
     const api = {
       g: root, hands: {},
       set(o = {}) {
-        const { la = [18, -22], ra = [18, -22], headR = 0, blink = false, fear = 0, shock = 0, talk = 0, legL = [0, 4], legR = [0, 4], point = null } = o;
+        const { la = [18, -22], ra = [18, -22], headR = 0, blink = false, fear = 0, shock = 0, talk = 0, legL = [0, 4], legR = [0, 4], point = null, seat = false } = o;
         up.setAttribute('transform', `rotate(4 0 -296)`);
+        sar.style.display = seat ? 'none' : '';
+        seatG.style.display = seat ? '' : 'none';
+        [legs.legs.l, legs.legs.r].forEach(L => [L.o, L.f, L.sh].forEach(el => el.style.display = seat ? 'none' : ''));
+        shad.setAttribute('cy', seat ? -140 : 6);
+        shad.setAttribute('rx', seat ? 112 : 84);
         head.setAttribute('transform', `rotate(${headR.toFixed(2)} 4 -520)`);
         const wide = 1 + .3 * shock;
         eyes.forEach(ey => {
@@ -223,8 +236,18 @@ window.buildEpisode = (world, S) => {
   const Bimo = (p, { x = 0, y = 0, s = 1 } = {}) => {
     const C = { skin: '#d9a06e', hair: '#14100c', shirt: '#c9972f', shirtD: '#a67c22', pants: '#33549e', shoe: '#7a4a26' };
     const root = E('g', {}, p), g = E('g', {}, root);
-    E('ellipse', { cx: 0, cy: 5, rx: 56, ry: 9, fill: '#000', opacity: .28 }, g);
+    const shad = E('ellipse', { cx: 0, cy: 5, rx: 56, ry: 9, fill: '#000', opacity: .28 }, g);
     const legs = legKit(g, { L1: 118, L2: 110, wO: 30, wF: 24, cloth: C.skin, shoe: C.shoe });
+    // MODE DUDUK (lantai): kaki menekuk rapat — lutut naik berdampingan, betis
+    // kembali ke dalam, kaki berdampingan di lantai (bukan ngangkang).
+    const seatLegs = E('g', {}, g);
+    [-1, 1].forEach(sd => {
+      const d = `M${sd * 19},-236 L${sd * 58},-160 L${sd * 40},-144`;
+      E('path', { d, fill: 'none', stroke: '#14100c', 'stroke-width': 34, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, seatLegs);
+      E('path', { d, fill: 'none', stroke: C.skin, 'stroke-width': 26, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, seatLegs);
+      E('ellipse', { cx: sd * 40, cy: -140, rx: 21, ry: 9.5, fill: C.shoe, ...st(2.5) }, seatLegs);
+    });
+    seatLegs.style.display = 'none';
     // celana pendek (blok pinggul di atas paha, seperti sarung Darma tapi pendek)
     E('path', { d: 'M-40,-238 L40,-238 L46,-168 L14,-168 L0,-196 L-14,-168 L-46,-168 Z', fill: C.pants, ...st(3.5) }, g);
     E('path', { d: 'M-38,-330 C-44,-292 -43,-262 -38,-232 L38,-232 C43,-262 44,-292 38,-330 Q0,-346 -38,-330Z', fill: C.shirt, ...st(3.5) }, g);
@@ -251,8 +274,12 @@ window.buildEpisode = (world, S) => {
     const api = {
       g: root, hands: {},
       set(o = {}) {
-        const { la = [22, -24], ra = [22, -24], headR = 0, blink = false, fear = 0, shock = 0, talk = 0, mood = 'smile', legL = [0, 4], legR = [0, 4], point = null } = o;
+        const { la = [22, -24], ra = [22, -24], headR = 0, blink = false, fear = 0, shock = 0, talk = 0, mood = 'smile', legL = [0, 4], legR = [0, 4], point = null, seat = false } = o;
         head.setAttribute('transform', `rotate(${headR.toFixed(2)} 0 -344)`);
+        [legs.legs.l, legs.legs.r].forEach(L => [L.o, L.f, L.sh].forEach(el => el.style.display = seat ? 'none' : ''));
+        seatLegs.style.display = seat ? '' : 'none';
+        shad.setAttribute('cy', seat ? -126 : 5);
+        shad.setAttribute('rx', seat ? 70 : 56);
         const wide = 1 + .4 * shock;
         eyes.forEach(ey => {
           ey.open.style.display = blink ? 'none' : ''; ey.shut.style.display = blink ? '' : 'none';
@@ -281,8 +308,18 @@ window.buildEpisode = (world, S) => {
   const Ayah = (p, { x = 0, y = 0, s = 1 } = {}) => {
     const C = { skin: '#c08b58', hair: '#100d0a', shirt: '#6b6f75', shirtD: '#4c4f54', pants: '#2e3138', shoe: '#17100b' };
     const root = E('g', {}, p), g = E('g', {}, root);
-    E('ellipse', { cx: 0, cy: 6, rx: 104, ry: 14, fill: '#000', opacity: .28 }, g);
+    const shad = E('ellipse', { cx: 0, cy: 6, rx: 104, ry: 14, fill: '#000', opacity: .28 }, g);
     const legs = legKit(g, { L1: 178, L2: 168, wO: 46, wF: 38, cloth: C.pants, shoe: C.shoe });
+    // MODE DUDUK: paha menurun wajar selebar bahu, betis kembali ke dalam,
+    // kaki berdampingan di lantai (bukan split menyamping).
+    const seatLegs = E('g', {}, g);
+    [-1, 1].forEach(sd => {
+      const d = `M${sd * 34},-334 L${sd * 92},-206 L${sd * 58},-154`;
+      E('path', { d, fill: 'none', stroke: '#0d0a10', 'stroke-width': 50, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, seatLegs);
+      E('path', { d, fill: 'none', stroke: C.pants, 'stroke-width': 41, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, seatLegs);
+      E('ellipse', { cx: sd * 58, cy: -153, rx: 27, ry: 11, fill: C.shoe, ...st(2.5) }, seatLegs);
+    });
+    seatLegs.style.display = 'none';
     E('path', { d: 'M-76,-556 C-84,-480 -82,-404 -76,-336 L76,-336 C82,-404 84,-480 76,-556 Q0,-580 -76,-556Z', fill: C.shirt, ...st(4) }, g);
     E('path', { d: 'M76,-556 C84,-480 82,-404 76,-336 L48,-336 C56,-406 58,-478 52,-552Z', fill: C.shirtD }, g);
     const kit = armKit(g, { L1: 140, L2: 128, wO: 44, wF: 38, shirt: C.shirt, shirtD: C.shirtD, skin: C.skin });
@@ -290,7 +327,7 @@ window.buildEpisode = (world, S) => {
     const head = E('g', {}, g), hg = E('g', {}, head);
     E('path', { d: 'M-66,-664 C-68,-616 -56,-584 -30,-572 L30,-572 C56,-584 68,-616 66,-664 C66,-706 38,-728 0,-728 C-38,-728 -66,-706 -66,-664Z', fill: C.skin, ...st(4) }, hg);
     // rambut belah samping rapi
-    E('path', { d: 'M-66,-664 C-70,-712 -34,-734 2,-733 L-6,-716 L14,-726 L18,-708 L38,-716 C56,-706 66,-690 66,-664 C54,-686 34,-694 18,-688 C2,-698 -30,-696 -46,-682 C-56,-690 -62,-678 -66,-664Z', fill: C.hair, ...st(3) }, hg);
+    E('path', { d: 'M-66,-664 C-70,-714 -34,-736 2,-735 C38,-734 60,-712 66,-664 C54,-694 34,-702 18,-696 C2,-706 -30,-704 -46,-688 C-56,-690 -62,-678 -66,-664Z', fill: C.hair, ...st(3) }, hg);
     const eyes = [-1, 1].map(sd => {
       const e = E('g', { transform: `translate(${sd * 26},-652)` }, hg);
       const open = E('g', {}, e);
@@ -306,8 +343,12 @@ window.buildEpisode = (world, S) => {
     const api = {
       g: root, hands: {},
       set(o = {}) {
-        const { la = [19, -21], ra = [19, -21], headR = 0, blink = false, fear = 0, shock = 0, talk = 0, legL = [0, 4], legR = [0, 4], point = null } = o;
+        const { la = [19, -21], ra = [19, -21], headR = 0, blink = false, fear = 0, shock = 0, talk = 0, legL = [0, 4], legR = [0, 4], point = null, seat = false } = o;
         head.setAttribute('transform', `rotate(${headR.toFixed(2)} 0 -566)`);
+        [legs.legs.l, legs.legs.r].forEach(L => [L.o, L.f, L.sh].forEach(el => el.style.display = seat ? 'none' : ''));
+        seatLegs.style.display = seat ? '' : 'none';
+        shad.setAttribute('cy', seat ? -138 : 6);
+        shad.setAttribute('rx', seat ? 112 : 104);
         const wide = 1 + .35 * shock;
         eyes.forEach(ey => {
           ey.open.style.display = blink ? 'none' : ''; ey.shut.style.display = blink ? '' : 'none';
@@ -335,7 +376,7 @@ window.buildEpisode = (world, S) => {
   const Ibu = (p, { x = 0, y = 0, s = 1 } = {}) => {
     const C = { skin: '#d29c6c', hair: '#1d130c', dress: '#7a5230', dressD: '#5e3d22', shoe: '#2a1c12' };
     const root = E('g', {}, p), g = E('g', {}, root);
-    E('ellipse', { cx: 0, cy: 6, rx: 86, ry: 12, fill: '#000', opacity: .28 }, g);
+    const shad = E('ellipse', { cx: 0, cy: 6, rx: 86, ry: 12, fill: '#000', opacity: .28 }, g);
     const legs = legKit(g, { L1: 140, L2: 130, wO: 36, wF: 28, cloth: '#5e4630', shoe: C.shoe });
     // daster panjang menutup paha (blok seperti sarung, motif titik batik)
     const dr = E('g', {}, g);
@@ -343,14 +384,24 @@ window.buildEpisode = (world, S) => {
     [[-40, -250], [-12, -210], [20, -255], [44, -200], [-26, -150], [10, -140], [52, -130], [-52, -190]].forEach(([cx, cy]) =>
       E('circle', { cx, cy, r: 5, fill: C.dressD, opacity: .8 }, dr));
     E('path', { d: 'M-64,-316 L64,-316 L66,-288 L-66,-288Z', fill: C.dressD }, dr);
+    // MODE DUDUK: daster = massa kain utuh melebar menutupi lutut; kaki
+    // tersembunyi, ujung sepatu berdampingan mengintip di bawah hem.
+    const seatG = E('g', {}, g);
+    [-1, 1].forEach(sd => E('ellipse', { cx: sd * 32, cy: -160.5, rx: 24, ry: 10.5, fill: C.shoe, ...st(2.5) }, seatG));
+    E('path', { d: 'M-66,-316 L66,-316 L106,-168 L-106,-168 Z', fill: C.dress, ...st(4) }, seatG);
+    [[-44, -262], [-8, -226], [30, -268], [52, -214], [-30, -196], [14, -188]].forEach(([cx, cy]) =>
+      E('circle', { cx, cy, r: 5, fill: C.dressD, opacity: .8 }, seatG));
+    E('path', { d: 'M-66,-316 L66,-316 L68,-288 L-68,-288Z', fill: C.dressD }, seatG);
+    seatG.style.display = 'none';
     E('path', { d: 'M-58,-520 C-64,-452 -62,-376 -58,-310 L58,-310 C62,-376 64,-452 58,-520 Q0,-544 -58,-520Z', fill: C.dress, ...st(4) }, g);
     E('path', { d: 'M58,-520 C64,-452 62,-376 58,-310 L36,-310 C44,-378 46,-450 40,-516Z', fill: C.dressD }, g);
     const kit = armKit(g, { L1: 112, L2: 102, wO: 36, wF: 30, shirt: C.dress, shirtD: C.dressD, skin: C.skin });
     E('rect', { x: -15, y: -544, width: 30, height: 40, rx: 8, fill: C.skin, ...st(3) }, g);
     const head = E('g', {}, g), hg = E('g', {}, head);
+    // sanggul rendah DI BELAKANG kepala: digambar SEBELUM wajah, hanya lengkung
+    // kecil mengintip di belakang rahang (bukan bola menempel di pipi).
+    E('circle', { cx: -57, cy: -582, r: 18, fill: C.hair, ...st(2.5) }, hg);
     E('circle', { cx: 0, cy: -606, r: 64, fill: C.skin, ...st(4) }, hg);
-    // sanggul rendah di belakang bawah kepala
-    E('circle', { cx: -52, cy: -566, r: 19, fill: C.hair, ...st(2.5) }, hg);
     E('path', { d: 'M-64,-606 C-68,-648 -36,-670 0,-670 C36,-670 68,-648 64,-606 C52,-628 32,-636 16,-630 C0,-640 -28,-638 -44,-626 C-54,-632 -60,-620 -64,-606Z', fill: C.hair, ...st(3) }, hg);
     const eyes = [-1, 1].map(sd => {
       const e = E('g', { transform: `translate(${sd * 23},-612)` }, hg);
@@ -369,8 +420,13 @@ window.buildEpisode = (world, S) => {
     const api = {
       g: root, hands: {},
       set(o = {}) {
-        const { la = [19, -22], ra = [19, -22], headR = 0, blink = false, fear = 0, shock = 0, talk = 0, legL = [0, 4], legR = [0, 4], point = null } = o;
+        const { la = [19, -22], ra = [19, -22], headR = 0, blink = false, fear = 0, shock = 0, talk = 0, legL = [0, 4], legR = [0, 4], point = null, seat = false } = o;
         head.setAttribute('transform', `rotate(${headR.toFixed(2)} 0 -538)`);
+        [legs.legs.l, legs.legs.r].forEach(L => [L.o, L.f, L.sh].forEach(el => el.style.display = seat ? 'none' : ''));
+        dr.style.display = seat ? 'none' : '';
+        seatG.style.display = seat ? '' : 'none';
+        shad.setAttribute('cy', seat ? -140 : 6);
+        shad.setAttribute('rx', seat ? 102 : 86);
         const wide = 1 + .35 * shock;
         eyes.forEach(ey => {
           ey.open.style.display = blink ? 'none' : ''; ey.shut.style.display = blink ? '' : 'none';
@@ -385,8 +441,8 @@ window.buildEpisode = (world, S) => {
         talkM.setAttribute('ry', (0.1 + talk * 6).toFixed(2));
         api.hands.l = kit.place(kit.arms.l, la[0], la[1], [-57, -476], point === 'l');
         api.hands.r = kit.place(kit.arms.r, ra[0], ra[1], [57, -476], point === 'r');
-        legs.place(legs.legs.l, legL[0], legL[1], [-26, -316]);
-        legs.place(legs.legs.r, legR[0], legR[1], [26, -316]);
+        legs.place(legs.legs.l, legL[0], legL[1], [-26, -272]);
+        legs.place(legs.legs.r, legR[0], legR[1], [26, -272]);
       }
     };
     api.set();
@@ -497,8 +553,8 @@ window.buildEpisode = (world, S) => {
         talkM.setAttribute('ry', (0.1 + talk * 5.5).toFixed(2));
         api.hands.l = kit.place(kit.arms.l, la[0], la[1], [-66, -446], point === 'l');
         api.hands.r = kit.place(kit.arms.r, ra[0], ra[1], [66, -446], point === 'r');
-        legs.place(legs.legs.l, legL[0], legL[1], [-28, -296]);
-        legs.place(legs.legs.r, legR[0], legR[1], [28, -296]);
+        legs.place(legs.legs.l, legL[0], legL[1], [-28, -248]);
+        legs.place(legs.legs.r, legR[0], legR[1], [28, -248]);
       }
     };
     api.set();
@@ -568,12 +624,13 @@ window.buildEpisode = (world, S) => {
   const Wewe = (p, { x = 0, y = 0, s = 1 } = {}) => {
     const C = { skin: '#8a7360', skinD: '#6e5947', hair: '#191512', hairG: '#4a4238', kebaya: '#2e2a33', kebayaD: '#201c24', kain: '#3a2f2a', line: '#0d0a10' };
     const root = E('g', {}, p), g = E('g', {}, root);
-    E('ellipse', { cx: 0, cy: 6, rx: 96, ry: 13, fill: '#000', opacity: .34 }, g);
-    // kaki telanjang di bawah kain panjang
-    const feet = [-1, 1].map(sd => E('ellipse', { cx: sd * 30, cy: -2, rx: 30, ry: 10, fill: C.skinD, ...st(2.5, C.line) }, g));
+    E('ellipse', { cx: 0, cy: 6, rx: 96, ry: 13, fill: '#000', opacity: .5 }, g);
+    // kaki telanjang di bawah kain panjang: hem kain TURUN menutupi pangkal
+    // kaki (tumpang-tindih) supaya kaki terbaca menempel, bukan melayang.
+    const feet = [-1, 1].map(sd => E('ellipse', { cx: sd * 30, cy: 0, rx: 27, ry: 10, fill: C.skinD, ...st(2.5, C.line) }, g));
     // kain panjang (rok) — massa gelap sampai dekat tanah
-    E('path', { d: 'M-58,-452 L58,-452 L84,-16 L-84,-16 Z', fill: C.kain, ...st(4, C.line) }, g);
-    E('path', { d: 'M-20,-450 L-30,-20 M16,-450 L24,-20', fill: 'none', stroke: '#2a211c', 'stroke-width': 4, opacity: .7 }, g);
+    E('path', { d: 'M-58,-452 L58,-452 L84,-4 L-84,-4 Z', fill: C.kain, ...st(4, C.line) }, g);
+    E('path', { d: 'M-20,-450 L-30,-8 M16,-450 L24,-8', fill: 'none', stroke: '#2a211c', 'stroke-width': 4, opacity: .7 }, g);
     // torso gaung (bahu sempit) — grup atas condong ringan dari pinggang
     const up = E('g', {}, g);
     E('path', { d: 'M-52,-646 C-57,-578 -55,-512 -52,-452 L52,-452 C55,-512 57,-578 52,-646 Q0,-664 -52,-646Z', fill: C.kebaya, ...st(4, C.line) }, up);
@@ -1109,7 +1166,7 @@ window.buildEpisode = (world, S) => {
       const ph = (t - t0) / d;
       const up = bump(ph, .06, .3) - bump(ph, .62, .9);
       [A, B, C].forEach((S2, i) => {
-        S2.darma.set({ la: [20 + up * 8, -22], ra: [22 + up * 46, -24 - up * 52], talk, legL: [78, -66], legR: [-84, 72], blink: blinkAt(t, 2), headR: Math.sin(t * .7) * 2 });
+        S2.darma.set({ la: [20 + up * 8, -22], ra: [22 + up * 46, -24 - up * 52], talk, seat: true, blink: blinkAt(t, 2), headR: Math.sin(t * .7) * 2 });
         S2.nar.set({ la: [18, -18], ra: [18, -18], blink: blinkAt(t, 9), fear: i === 2 ? .45 : .15, headR: i === 2 ? -11 : -4 });
         ambFog(S2.set, t, 900);
       });
@@ -1138,7 +1195,7 @@ window.buildEpisode = (world, S) => {
       const talk = .45 + .55 * Math.abs(Math.sin(t * 6.8));
       const rock = Math.sin(t * 1.25) * 3;
       [A, B].forEach(S2 => {
-        S2.darma.set({ la: [58 + rock, -100], ra: [58 - rock, -100], talk, legL: [78, -66], legR: [-84, 72], blink: blinkAt(t, 4), headR: -3 });
+        S2.darma.set({ la: [58 + rock, -100], ra: [58 - rock, -100], talk, seat: true, blink: blinkAt(t, 4), headR: -3 });
         ambFog(S2.set, t, 900);
       });
       A.g.style.display = t < b1 ? '' : 'none';
@@ -1611,7 +1668,7 @@ window.buildEpisode = (world, S) => {
       E('path', { d: 'M760,-320 L760,1420', stroke: '#0a0608', 'stroke-width': 8 }, g);
       E('rect', { x: 760, y: -320, width: 640, height: 1740, fill: '#14101a', opacity: .55 }, g);
       const bimo = Bimo(g, {});
-      bimo.set({ la: [42, -32], ra: [42, -32], legL: [80, -70], legR: [-84, 74], mood: 'flat' });
+      bimo.set({ la: [22, -30], ra: [22, -30], seat: true, mood: 'flat' });
       tr(bimo.g, 800, GY + 128, .92);
       return { g, bimo };
     };
@@ -1619,8 +1676,8 @@ window.buildEpisode = (world, S) => {
     const fr = E('rect', { x: 606, y: 470, width: 330, height: 950, fill: 'none', stroke: '#dfe9f5', 'stroke-width': 5, opacity: 0 }, B.g);
     during('sudut', 'sudute', (t) => {
       const t0 = lineT(15), d = lineD(15), b1 = t0 + d * .52;
-      A.bimo.set({ la: [42, -32], ra: [42, -32], legL: [80, -70], legR: [-84, 74], blink: blinkAt(t, 3), mood: 'flat', headR: -4 });
-      B.bimo.set({ la: [42, -32], ra: [42, -32], legL: [80, -70], legR: [-84, 74], blink: blinkAt(t, 3), mood: 'flat', headR: -6 });
+      A.bimo.set({ la: [22, -30], ra: [22, -30], seat: true, blink: blinkAt(t, 3), mood: 'flat', headR: -4 });
+      B.bimo.set({ la: [22, -30], ra: [22, -30], seat: true, blink: blinkAt(t, 3), mood: 'flat', headR: -6 });
       const phB = (t - b1) / (d * .48);
       fr.setAttribute('opacity', (Math.sin(clamp(phB) * Math.PI) * .55).toFixed(3));
       A.g.style.display = t < b1 ? '' : 'none';
@@ -1652,6 +1709,10 @@ window.buildEpisode = (world, S) => {
     const steams = [-40, 0, 40].map(sx => E('path', { d: `M${sx},-24 C${sx - 14},-58 ${sx + 14},-84 ${sx},-116`, fill: 'none', stroke: '#cfd8e6', 'stroke-width': 5, opacity: .35, 'stroke-linecap': 'round' }, bowl));
     const smallHands = [-1, 1].map(sd => {
       const sh2 = E('g', {}, inset);
+      // lengan bawah naik dari gelap bawah sisipan (lengan kaus mustard Bimo +
+      // pergelangan kulit) — tangan TIDAK melayang lepas tanpa lengan.
+      E('path', { d: `M0,34 L${sd * -16},168`, fill: 'none', stroke: '#c9972f', 'stroke-width': 20, 'stroke-linecap': 'round' }, sh2);
+      E('path', { d: `M0,32 L${sd * -4},62`, fill: 'none', stroke: '#d9a06e', 'stroke-width': 15, 'stroke-linecap': 'round' }, sh2);
       E('ellipse', { cx: 0, cy: 20, rx: 26, ry: 20, fill: '#d9a06e', ...st(2.5) }, sh2);
       [-16, 0, 16].forEach(fx => E('path', { d: `M${fx},6 C${fx},-16 ${fx + (fx ? fx * .2 : 0)},-26 ${fx},-34`, fill: 'none', stroke: '#d9a06e', 'stroke-width': 8, 'stroke-linecap': 'round' }, sh2));
       return { el: sh2, sd };
@@ -1767,7 +1828,7 @@ window.buildEpisode = (world, S) => {
     E('ellipse', { cx: 900, cy: 1300, rx: 460, ry: 100, fill: '#aebfd4', opacity: .18, filter: P.blur(B, 30) }, B);
     during('kembali', 'kembalie', (t) => {
       const t0 = lineT(19), d = lineD(19), b1 = t0 + d * .52;
-      ayah.set({ la: [46, -20], ra: [46, -20], legL: [84, -76], legR: [-88, 80], blink: blinkAt(t, 8), headR: 5 });
+      ayah.set({ la: [46, -20], ra: [46, -20], seat: true, blink: blinkAt(t, 8), headR: 5 });
       tr(ayah.g, 330, GY + 128, .94);
       bimo.set({ la: [30, -24], ra: [30, -24], blink: blinkAt(t, 3), mood: 'smile', headR: -5 });
       tr(bimo.g, 545, GY, .95);
@@ -1840,10 +1901,10 @@ window.buildEpisode = (world, S) => {
       const t0 = lineT(21), d = lineD(21), b1 = t0 + d * .44, b2 = t0 + d * .74;
       const eat = (Math.sin(t * 1.7) > 0) ? 1 : 0;
       [A, B].forEach((S2, i) => {
-        S2.ayah.set({ la: [42, -26], ra: [42, -26], legL: [80, -68], legR: [-84, 72], blink: blinkAt(t, 8), talk: .3 + .4 * Math.abs(Math.sin(t * 6.6)) });
-        tr(S2.ayah.g, 268, GY + 148, .92);
-        S2.ibu.set({ la: [42, -26], ra: [42, -26], legL: [80, -68], legR: [-84, 72], blink: blinkAt(t, 6) });
-        tr(S2.ibu.g, 812, GY + 148, .92);
+        S2.ayah.set({ la: [42, -26], ra: [42, -26], seat: true, blink: blinkAt(t, 8), talk: .3 + .4 * Math.abs(Math.sin(t * 6.6)) });
+        tr(S2.ayah.g, 268, GY + 140, .92);
+        S2.ibu.set({ la: [42, -26], ra: [42, -26], seat: true, blink: blinkAt(t, 6) });
+        tr(S2.ibu.g, 812, GY + 140, .92);
         const glance = i === 1 ? bump((t - b1) / (d * .3), .5, .8) : 0;
         S2.bimo.set({ la: [38, -28], ra: [lerp(40, 96, eat), lerp(-28, -100, eat)], blink: blinkAt(t, 3), mood: glance > .5 ? 'flat' : 'smile', headR: glance * 13 });
         tr(S2.bimo.g, 540, GY + 66, .84);
