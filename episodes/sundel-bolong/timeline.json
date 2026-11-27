@@ -1,0 +1,332 @@
+{
+ "voice": "file:None",
+ "total": 138.783,
+ "scenes": [
+  {
+   "id": "jalan",
+   "start": 0.0,
+   "end": 6.223
+  },
+  {
+   "id": "wajah",
+   "start": 6.223,
+   "end": 11.06
+  },
+  {
+   "id": "belakang",
+   "start": 11.06,
+   "end": 15.232
+  },
+  {
+   "id": "teori",
+   "start": 15.232,
+   "end": 21.969
+  },
+  {
+   "id": "dekat",
+   "start": 21.969,
+   "end": 26.85
+  },
+  {
+   "id": "tangis",
+   "start": 26.85,
+   "end": 32.361
+  },
+  {
+   "id": "tanya",
+   "start": 32.361,
+   "end": 38.087
+  },
+  {
+   "id": "tawa",
+   "start": 38.087,
+   "end": 43.078
+  },
+  {
+   "id": "sumpah",
+   "start": 43.078,
+   "end": 47.521
+  },
+  {
+   "id": "sembunyi",
+   "start": 47.521,
+   "end": 53.034
+  },
+  {
+   "id": "datang",
+   "start": 53.034,
+   "end": 58.263
+  },
+  {
+   "id": "rambut",
+   "start": 58.263,
+   "end": 65.281
+  },
+  {
+   "id": "berhenti",
+   "start": 65.281,
+   "end": 71.208
+  },
+  {
+   "id": "keluar",
+   "start": 71.208,
+   "end": 74.185
+  },
+  {
+   "id": "sibak",
+   "start": 74.185,
+   "end": 79.193
+  },
+  {
+   "id": "tembus",
+   "start": 79.193,
+   "end": 85.44
+  },
+  {
+   "id": "bisik",
+   "start": 85.44,
+   "end": 90.579
+  },
+  {
+   "id": "lari",
+   "start": 90.579,
+   "end": 94.134
+  },
+  {
+   "id": "pecah",
+   "start": 94.134,
+   "end": 97.734
+  },
+  {
+   "id": "warga",
+   "start": 97.734,
+   "end": 103.84
+  },
+  {
+   "id": "ulur",
+   "start": 103.84,
+   "end": 109.374
+  },
+  {
+   "id": "lubang",
+   "start": 109.374,
+   "end": 114.172
+  },
+  {
+   "id": "lenyap",
+   "start": 114.172,
+   "end": 121.073
+  },
+  {
+   "id": "anak",
+   "start": 121.073,
+   "end": 125.946
+  },
+  {
+   "id": "ganti",
+   "start": 125.946,
+   "end": 130.683
+  },
+  {
+   "id": "lampu",
+   "start": 130.683,
+   "end": 134.446
+  },
+  {
+   "id": "padam",
+   "start": 134.446,
+   "end": 138.783
+  }
+ ],
+ "lines": [
+  {
+   "i": 0,
+   "scene": "jalan",
+   "t": 0.35,
+   "d": 5.765,
+   "cap": "Setiap *tengah malam,* perempuan *bergaun putih* itu berjalan di jalan desa yang *sepi.*"
+  },
+  {
+   "i": 1,
+   "scene": "wajah",
+   "t": 6.385,
+   "d": 4.567,
+   "cap": "Wajahnya *cantik,* rambutnya *panjang* menutupi punggung *sampai ke lutut.*"
+  },
+  {
+   "i": 2,
+   "scene": "belakang",
+   "t": 11.222,
+   "d": 3.902,
+   "cap": "Tapi *tak seorang pun* warga berani berjalan *di belakangnya.*"
+  },
+  {
+   "i": 3,
+   "scene": "teori",
+   "t": 15.394,
+   "d": 6.467,
+   "cap": "Kata *Pak Karto,* ia *sundel bolong:* arwah penasaran yang *malu* pada *lubang di punggungnya.*"
+  },
+  {
+   "i": 4,
+   "scene": "dekat",
+   "t": 22.131,
+   "d": 4.611,
+   "cap": "Sejak *bayi Lastri lahir,* langkahnya terdengar *makin dekat* ke rumah warga."
+  },
+  {
+   "i": 5,
+   "scene": "tangis",
+   "t": 27.012,
+   "d": 5.241,
+   "cap": "Setiap ia lewat *rumah Lastri,* terdengar *tangis bayi samar,* entah dari mana."
+  },
+  {
+   "i": 6,
+   "scene": "tanya",
+   "t": 32.522,
+   "d": 5.457,
+   "cap": "Warga bertanya-tanya: ia *menjaga jalan ini,* atau *mengincar bayi baru lahir?*"
+  },
+  {
+   "i": 7,
+   "scene": "tawa",
+   "t": 38.25,
+   "d": 4.72,
+   "cap": "*Joko,* pemuda yang *tak percaya takhayul,* hanya *tertawa* mendengar semua itu."
+  },
+  {
+   "i": 8,
+   "scene": "sumpah",
+   "t": 43.24,
+   "d": 4.173,
+   "cap": "Ia *bersumpah* membuktikan sendiri: punggungnya *baik-baik saja.*"
+  },
+  {
+   "i": 9,
+   "scene": "sembunyi",
+   "t": 47.683,
+   "d": 5.243,
+   "cap": "Ia *bersembunyi di tikungan,* tempat orang lewat terpaksa *membelakanginya.*"
+  },
+  {
+   "i": 10,
+   "scene": "datang",
+   "t": 53.196,
+   "d": 4.959,
+   "cap": "*Tengah malam* ia datang. Gaun putihnya *berkibar* tertiup angin."
+  },
+  {
+   "i": 11,
+   "scene": "rambut",
+   "t": 58.425,
+   "d": 6.508,
+   "cap": "Tapi *rambutnya diam,* tak sehelai pun bergerak. *Seolah terpahat.*"
+  },
+  {
+   "i": 12,
+   "scene": "berhenti",
+   "t": 65.803,
+   "d": 5.297,
+   "cap": "Di tikungan, perempuan itu *berhenti.* Ia *tidak berbelok,* hanya *menunggu.*"
+  },
+  {
+   "i": 13,
+   "scene": "keluar",
+   "t": 71.37,
+   "d": 2.707,
+   "cap": "Joko *melangkah keluar,* lurus *ke belakangnya.*"
+  },
+  {
+   "i": 14,
+   "scene": "sibak",
+   "t": 74.347,
+   "d": 4.578,
+   "cap": "Perlahan ia *ulurkan tangan,* menyibak *rambut yang tak pernah bergerak* itu."
+  },
+  {
+   "i": 15,
+   "scene": "tembus",
+   "t": 79.595,
+   "d": 5.417,
+   "cap": "Tangannya *menembus udara dingin.* Rambut itu *tak bisa disentuh,* apalagi digeser."
+  },
+  {
+   "i": 16,
+   "scene": "bisik",
+   "t": 86.082,
+   "d": 4.389,
+   "cap": "Tanpa berbalik, perempuan itu *berbisik:* *Jangan lihat punggungku.*"
+  },
+  {
+   "i": 17,
+   "scene": "lari",
+   "t": 90.741,
+   "d": 3.285,
+   "cap": "Joko *lari terbirit-birit.* Ujiannya *gagal total.*"
+  },
+  {
+   "i": 18,
+   "scene": "pecah",
+   "t": 94.296,
+   "d": 3.33,
+   "cap": "*Tiga malam kemudian,* tangis bayi Lastri *pecah.*"
+  },
+  {
+   "i": 19,
+   "scene": "warga",
+   "t": 97.896,
+   "d": 5.836,
+   "cap": "Warga *berlari* ke rumah Lastri. Di *jendela,* perempuan itu berdiri *membelakangi mereka.*"
+  },
+  {
+   "i": 20,
+   "scene": "ulur",
+   "t": 104.002,
+   "d": 5.064,
+   "cap": "Kedua tangannya *terulur ke arah bayi.* Rambutnya *tersibak,* jatuh ke samping."
+  },
+  {
+   "i": 21,
+   "scene": "lubang",
+   "t": 109.836,
+   "d": 4.068,
+   "cap": "*Lubang itu menganga,* tembus sampai ke *cahaya lampu* di belakangnya."
+  },
+  {
+   "i": 22,
+   "scene": "lenyap",
+   "t": 114.574,
+   "d": 6.391,
+   "cap": "*Puluhan mata* menatapnya. Ia *menjerit,* memeluk rambut ke punggungnya, lalu *lenyap.*"
+  },
+  {
+   "i": 23,
+   "scene": "anak",
+   "t": 121.235,
+   "d": 4.603,
+   "cap": "Tangis samar itu adalah *tangis anaknya sendiri,* yang tak sempat ia peluk."
+  },
+  {
+   "i": 24,
+   "scene": "ganti",
+   "t": 126.107,
+   "d": 4.468,
+   "cap": "Ia datang *bukan menjaga jalan.* Ia mencari *pengganti anaknya* yang hilang."
+  },
+  {
+   "i": 25,
+   "scene": "lampu",
+   "t": 130.845,
+   "d": 3.493,
+   "cap": "Sejak itu, Joko *menyalakan lampu* tikungan itu *tiap sore.*"
+  },
+  {
+   "i": 26,
+   "scene": "padam",
+   "t": 134.608,
+   "d": 3.374,
+   "cap": "Tapi tiap pagi *lampu itu padam,* minyaknya *masih penuh.*"
+  }
+ ]
+}
