@@ -298,7 +298,7 @@ const KEYS: Key[] = [
   S(17, 1, creep([2.3, 1.15, 0.5], [0, 1.3, 4.6], 36)),
   S(17, 2, creep([2.0, 1.25, 0.8], [0, 1.3, 4.5], 36)),
   S(18, 0, creep([3.9, 2.4, 2.0], [0, 1.25, 4.5], 42)),
-  S(18, 1, creep([1.6, 1.45, -3.7], [0.3, 1.1, -1.6], 38)),
+  S(18, 1, creep([1.9, 1.5, -4.3], [0.3, 1.15, -1.9], 38)),
   S(19, 0, (f) => { const st = stageAt(f); const rz = st.rendi?.z ?? -4; return { pos: [3.1, 1.5, rz + 1.6], look: [0.2, 1.0, rz], fov: 42 }; }),
   S(19, 1, creep([4.3, 2.05, -7.6], [0, 1.1, -1.5], 46, 0.1)),
   S(19, 2, (f) => { const st = stageAt(f); const rz = st.rendi?.z ?? -8; return { pos: [2.7, 1.45, rz + 1.2], look: [0.25, 1.05, rz], fov: 36 }; }),
@@ -306,7 +306,7 @@ const KEYS: Key[] = [
   S(20, 1, (f) => { const st = stageAt(f); const rz = st.rendi?.z ?? -10; return { pos: [2.6, 1.4, rz + 1.0], look: [0.25, 1.05, rz], fov: 38 }; }),
   S(21, 0, creep([0.45, 1.5, -7.9], [0.25, 1.3, -11.5], 32, 0.18)),
   S(21, 1, creep([3.7, 1.95, -7.0], [0, 1.1, -0.6], 46, 0.1)),
-  S(22, 0, creep([3.5, 1.65, 6.9], [0.4, 0.6, 5.0], 42)),
+  S(22, 0, creep([3.6, 1.7, 7.4], [0.75, 0.55, 4.3], 44)),
   S(22, 1, creep([3.1, 1.25, 7.7], [1.55, 0.1, 5.15], 40)),
   S(23, 0, creep([3.55, 1.25, 10.3], [0.1, 0.8, 3.5], 44, 0.08)),
   S(23, 1, creep([3.3, 1.2, 9.6], [0.4, 0.75, 3.8], 42, 0.08)),
@@ -333,6 +333,7 @@ export const dofAt = (f: number): { cInf: number; focus: V3 } => {
   if (line === 15 && sub === 0) return { cInf: 15, focus: face(st.rendi) };
   if (line === 16) return { cInf: 13, focus: face(st.rendi) };
   if (line === 17) return { cInf: sub === 1 ? 12 : 6, focus: [0, 1.4, FIG_Z] };
+  if (line === 18 && sub === 1) return { cInf: 12, focus: face(st.rendi) };
   if (line === 21 && sub === 0) return { cInf: 14, focus: face(st.rendi) };
   if (line === 26 && sub === 1) return { cInf: 12, focus: [0.55, 0.87, 0.2] };
   if (st.fire.figure) return { cInf: 7, focus: st.fire.figure.pos };
