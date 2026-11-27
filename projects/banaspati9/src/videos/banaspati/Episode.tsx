@@ -17,6 +17,7 @@ import { LensBlur } from "../layang/lensblur";
 import { GradeEffect, GradeParams } from "../layang/grade";
 import { EpisodeWorld } from "./eworld";
 import { dofAt, stageAt } from "./story9";
+import { TEST_OFF } from "./timing9";
 
 export const GRADE_NIGHT_EP: GradeParams = {
   ky: [0, 0.09, 0.26, 0.55, 0.82, 0.95, 1],
@@ -47,9 +48,8 @@ const makeBloom = () => {
 
 const fwd = new THREE.Vector3(), fpt = new THREE.Vector3();
 
-const Inner: React.FC = () => {
-  const props = getInputProps() as { offset?: number };
-  const f = useCurrentFrame() + (props.offset ?? 0);
+const Inner: React.FC<{ off?: number }> = ({ off = 0 }) => {
+  const f = useCurrentFrame() + off;
   const { camera, scene } = useThree();
   const world = useMemo(() => new EpisodeWorld(), []);
   const fx = useMemo(() => ({
@@ -90,11 +90,14 @@ const Inner: React.FC = () => {
 };
 
 const dprOverride = () => (getInputProps() as { post?: { dpr?: number } }).post?.dpr;
-export const BanaspatiEp: React.FC = () => (
+const Canvas: React.FC<{ off?: number }> = ({ off = 0 }) => (
   <AbsoluteFill style={{ background: "#070a14" }}>
     <ThreeCanvas width={1080} height={1920} dpr={dprOverride() ?? 0.75} shadows gl={{ antialias: false, stencil: false, powerPreference: "high-performance", toneMappingExposure: 1.0 }}
       camera={{ fov: 42, near: 0.2, far: 1500 }}>
-      <Inner />
+      <Inner off={off} />
     </ThreeCanvas>
   </AbsoluteFill>
 );
+export const BanaspatiEp: React.FC = () => <Canvas off={0} />;
+/** climax test window: same world, frames shifted by TEST_OFF (timing9) */
+export const BanaspatiTestComp: React.FC = () => <Canvas off={TEST_OFF} />;
