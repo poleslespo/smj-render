@@ -103,7 +103,12 @@ export class ReworkEpisodeWorld {
     b.add(boxGeo(V(-6.6, -0.39, -1.9), V(-0.9, 0.012, 0.9), 1), dirt); // porch apron
     b.add(boxGeo(V(-60, -0.55, 3.0), V(60, 0, 3.35), 1), earth);
     b.add(boxGeo(V(-60, -0.55, 7.05), V(60, 0, 7.4), 1), earth);
-    b.add(boxGeo(V(-60, -0.62, 3.0), V(60, -0.5, 7.4), 1), waterM);
+    // V3 FIX (water grid): the kali surface goes into its OWN batch so its mesh
+    // can skip shadow-receiving — the moon shadow map aliased the bridge
+    // rails/planks into a regular "pool tile" grid on the flat water colour
+    // (A/B proven: shadows off -> grid gone, smooth glow wash only).
+    const bw = new Batch();
+    bw.add(boxGeo(V(-60, -0.62, 3.0), V(60, -0.5, 7.4), 1), waterM);
     b.add(boxGeo(V(-60, -1.4, 3.0), V(60, -0.6, 7.4), 1), earth);
     for (let z = 1.35; z <= 9.05; z += 0.31) {
       const y = deckY(z);
@@ -180,6 +185,8 @@ export class ReworkEpisodeWorld {
     const wdisc = new THREE.CircleGeometry(0.28, 22); wdisc.rotateX(-Math.PI / 2);
     b.add(wdisc, lam("r9JarWater", () => ({ color: "#2c4c6e" })), new THREE.Matrix4().makeTranslation(0.55, 0.87, 0.2));
     b.build(R);
+    bw.build(R);
+    R.traverse((o) => { const m = o as THREE.Mesh; if (m.isMesh && (m.material as THREE.Material) === waterM) { m.receiveShadow = false; m.castShadow = false; } });
     // hero swaying trees (U6 ambient movers; positions offset from the
     // static batch trees so crowns never intersect)
     const hero: [number, number, number, number][] = [[-9.5, 6.5, 1.3, 0.5], [9.2, -3.5, 1.2, 2.4], [-7.6, 19.5, 1.5, 4.4], [7.5, 15.5, 1.1, 1.2]];

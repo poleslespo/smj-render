@@ -110,7 +110,12 @@ const KEYS: Key[] = [
   S(8, 1, hold([3.6, 1.75, -9.6], [0.1, 1.0, -0.7], 44)),
   // L10 senter + stone — A MW (beam readable); B M low on the light pool
   S(9, 0, hold([3.1, 1.65, -6.0], [0.25, 1.0, -1.55], 44)),
-  S(9, 1, hold([1.85, 0.7, -4.9], [-0.35, 0.3, -2.4], 42)),
+  // V3 FIX: v2's pool close-up looked at the ground point (-0.35,0.3,-2.4);
+  // Rendi sat ~17 deg off-axis — outside the 9:16 horizontal half-FOV — so
+  // the whole sub-shot played on empty ground + wall while the narration
+  // says he is showing off the senter and stone. Reframed as a low M on
+  // Rendi himself; the beam and pool stay in the near foreground.
+  S(9, 1, hold([2.55, 0.8, -3.95], [0.25, 0.95, -1.55], 42)),
   // L11 burnt smell — A MW (emptiness around him); B = S5 gate camera (W)
   S(10, 0, hold([3.5, 1.85, -6.4], [0.2, 1.05, -1.2], 44)),
   S(10, 1, hold([3.6, 1.7, -10.6], [-0.2, 0.95, 1.8], 44)),
@@ -161,8 +166,13 @@ const KEYS: Key[] = [
   // track lands inside the east tree line (g_2620). All three beats
   // are DIAGONAL tracks from ahead of the run, where the z-gap
   // projects across the frame and both bodies stay in it
-  S(19, 0, trackR(5.2, 2.6, -4.6, 0.15, 1.0, 1.6, 44)),
-  S(19, 1, trackR(5.6, 2.0, -3.4, 0.15, 1.05, 1.9, 46)),
+  // V3 FIX: at v2's heights (y 2.6 / 2.0) the house wall (top y 2.6) fell
+  // below the frame while the roof slab (y 2.43-3.87) hung in the upper
+  // frame as a floating grey slab for ~30 frames (ep ~2628-2658), its edge
+  // intermittently crossing Rendi's head. Lowering both track cameras puts
+  // the wall back under the roof so the house reads as a house.
+  S(19, 0, trackR(5.2, 1.7, -4.6, 0.15, 1.0, 1.6, 44)),
+  S(19, 1, trackR(5.6, 1.35, -3.4, 0.15, 1.05, 1.9, 46)),
   S(19, 2, trackR(-5.6, 2.0, -3.4, 0.15, 1.05, 1.8, 50)),
   // L21 unburned grass — A MW low diagonal track (figure + grass strip
   // in the foreground, Rendi ahead in frame); B W hold as the pair passes
