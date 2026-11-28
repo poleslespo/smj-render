@@ -128,12 +128,15 @@ const KEYS: Key[] = [
   // L15 it turns, then grows — A MW two-shot; B M object; C MW west axis
   S(14, 0, hold([3.45, 1.85, -3.3], [0.1, 1.6, 4.4], 44)),
   S(14, 1, hold([2.35, 2.0, 1.7], [0, 1.95, 5.2], 40)),
-  S(14, 2, hold([-3.3, 1.95, -2.8], [0, 1.8, 5.0], 44)),
+  // sub2 from the NW far bank (a south-west placement stared into the
+  // house wall slab, x -7.6..-0.9 at z -2.45..-2.2 — caught in QC)
+  S(14, 2, hold([-4.7, 2.15, 11.9], [0, 1.6, 4.85], 44)),
   // L16 grows with his fear — A = S6 gate camera (W); B PUSH-IN #1 (MW);
   // C MW west axis at tampah size
   S(15, 0, hold([2.34, 1.6, -9.24], [0, 1.6, 4.8], 42)),
   S(15, 1, push([3.2, 1.85, -5.6], [2.55, 1.7, -3.5], [0.1, 1.6, 4.6], 44)),
-  S(15, 2, hold([-3.5, 2.05, -4.9], [0, 1.7, 4.8], 44)),
+  // sub2 from the NW far bank (south-west placement was wall-blocked)
+  S(15, 2, hold([-4.3, 2.3, 11.3], [0.05, 1.75, 4.7], 42)),
   // L17 the frozen whisper — A = THE episode's one close-up (ball glow
   // rims the frame beyond him); B MW frozen full body, huge ball looming
   S(16, 0, hold([1.02, 1.44, -3.05], [0.3, 1.3, -1.5], 36)),
@@ -142,7 +145,10 @@ const KEYS: Key[] = [
   // B = S7 gate camera, the REVEAL WIDE, held; C MW west-axis hold
   S(17, 0, push([3.1, 1.85, -4.4], [2.6, 1.7, -3.1], [0, 1.5, 4.7], 44, 0.5)),
   S(17, 1, hold([1.6, 1.35, -8.6], [0, 1.5, 4.4], 44)),
-  S(17, 2, hold([-3.2, 1.85, -4.6], [0, 1.45, 4.6], 44)),
+  // sub2: the standing figure from the NW far bank (the first Phase-2
+  // test render caught the original south-west placement staring into
+  // the house wall for the whole subshot — wall slab z -2.45..-2.2)
+  S(17, 2, hold([-4.9, 2.2, 11.8], [0, 1.35, 5.2], 44)),
   // L19 flame tongue — A MW side view from the east bank, off the bridge
   // (a deck-level placement filled the frame with planks and cut the
   // figure at the waist with the rail — pre-flight f_2470); the jet
