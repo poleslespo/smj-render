@@ -55,7 +55,12 @@ export type PoseId =
   | "stand" | "strollF" | "marchS" | "sit" | "bust" | "back"
   | "senterF" | "senterS" | "throwS" | "frozen" | "water" | "fill";
 export type ActorState = { x: number; y: number; z: number; pose: PoseId; expr: string; mirror: boolean; scale: number; phase: number; ph?: number };
-export type FireState = { ball?: { pos: V3; size: number; face: number; spin: number }; figure?: { pos: V3; side: boolean; scale: number; jet: number } };
+export type FireState = { ball?: { pos: V3; size: number; face: number; spin: number }; figure?: { pos: V3; side: boolean; scale: number; jet: number; ph?: number } };
+/** metres of ground travel per march-cycle at stride 1.05 (bodySide model:
+ *  2 steps x 0.8 m x 1.05). Locomotion phases are DISTANCE-driven so the
+ *  planted foot is stationary in world space — a time-driven phase at any
+ *  other rate makes the feet slide and the run reads as backwards. */
+export const CYCLE_M = 1.68;
 export type Stage = {
   phase: "night" | "dusk" | "dawn"; sway: number;
   rendi?: ActorState; karso?: ActorState; tono?: ActorState;
@@ -113,9 +118,12 @@ export const stageAt = (f: number): Stage => {
       st.karso = A(PORCH.karso.x, PORCH.karso.z, "sit", "neutral");
       break;
     case 8: { // L9: next night — Rendi walks the road and waits
-      if (subAt(f).sub === 0) {
-        const wu = glide(u), x = lerp(-2.6, WAIT.x, wu), z = lerp(-6.5, WAIT.z, wu);
-        st.rendi = A(x, z, "marchS", "stern", { phase: t * 0.85, mirror: false });
+      // walk spans sub0 + the head of sub1 (arrives u=0.75); phase is
+      // distance-driven: path = sqrt(2.9^2 + 5^2) = 5.78 m
+      const wu = glide(clamp01(u / 0.75));
+      if (wu < 1) {
+        const x = lerp(-2.6, WAIT.x, wu), z = lerp(-6.5, WAIT.z, wu);
+        st.rendi = A(x, z, "marchS", "stern", { phase: wu * (5.78 / CYCLE_M), mirror: false });
       } else st.rendi = A(WAIT.x, WAIT.z, "stand", "stern");
       break;
     }
@@ -171,27 +179,28 @@ export const stageAt = (f: number): Stage => {
     case 18: { // L19: the flame tongue lashes toward Rendi
       const lash = u < 0.4 ? smooth(u / 0.4) : u < 0.7 ? 1 : 1 - smooth((u - 0.7) / 0.3) * 0.6;
       st.fire.figure = { pos: [0, deckY(FIG_Z) + 0.01, FIG_Z], side: true, scale: 1, jet: lash };
-      const back = subAt(f).sub === 1 ? smooth(u) * 0.85 : 0;
+      const back = subAt(f).sub === 1 ? smooth((u - 0.55) / 0.45) * 0.3 : 0;
       st.rendi = A(WAIT.x, WAIT.z - back, "frozen", "shock");
       break;
     }
     case 19: { // L20: the chase down the road (toward -z)
       const run = (off: number) => lerp(0.5, -8.6, clamp01(u * 1.06 - off));
       const rz = run(0), fz = run(0.16);
-      st.rendi = A(0.25, rz, "marchS", "shock", { phase: t * 1.9, mirror: true });
-      if (fz > -8.4) st.fire.figure = { pos: [0.05, 0, fz + 2.6], side: true, scale: 0.98, jet: 0.25 };
+      st.rendi = A(0.25, rz, "marchS", "shock", { phase: (0.5 - rz) / CYCLE_M, mirror: true });
+      if (fz > -8.4) st.fire.figure = { pos: [0.05, 0, fz + 2.6], side: true, scale: 0.98, jet: 0.25, ph: (0.5 - fz) / CYCLE_M };
       break;
     }
     case 20: // L21: the grass it passes does not burn
-      st.rendi = A(0.25, lerp(-8.6, -11.5, u), "marchS", "shock", { phase: t * 1.9, mirror: true });
-      st.fire.figure = { pos: [0.9, 0, lerp(-6.2, -9.2, u)], side: true, scale: 0.98, jet: 0.2 };
+      st.rendi = A(0.25, lerp(-8.6, -11.5, u), "marchS", "shock", { phase: (2.9 * u) / CYCLE_M, mirror: true });
+      st.fire.figure = { pos: [0.9, 0, lerp(-6.2, -9.2, u)], side: true, scale: 0.98, jet: 0.2, ph: (3.0 * u) / CYCLE_M };
       break;
     case 21: { // L22: he remembers — stops, turns, runs back toward the bridge
       if (subAt(f).sub === 0) st.rendi = A(0.25, -11.5, "bust", u < 0.45 ? "dazed" : "stern", { scale: 1.55 });
       else {
         const rz = lerp(-11.5, -2.2, glide(u));
-        st.rendi = A(0.25, rz, "marchS", "stern", { phase: t * 1.9, mirror: false });
-        st.fire.figure = { pos: [0.4, 0, rz - 3.4], side: true, scale: 0.98, jet: 0.2 };
+        const ph = (9.3 * (glide(u) - glide(0.55))) / CYCLE_M;
+        st.rendi = A(0.25, rz, "marchS", "stern", { phase: ph, mirror: false });
+        st.fire.figure = { pos: [0.4, 0, rz - 3.4], side: true, scale: 0.98, jet: 0.2, ph };
       }
       break;
     }

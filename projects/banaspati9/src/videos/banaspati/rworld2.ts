@@ -444,7 +444,12 @@ export class ReworkEpisodeWorld {
       // the planner's front-facing default says (REVEAL_SIDE verdict)
       const reveal = line === 17;
       const F = reveal ? { ...F0, side: true } : F0;
-      const bob = Math.abs(Math.sin(t * (F.pos[2] < 2 ? 6.4 : 2.0))) * (F.pos[2] < 2 ? 0.045 : 0.015);
+      // travelling figure: bob is driven by its distance phase (two
+      // hand-plants per cycle) so the body rides its own locomotion;
+      // stationary figure keeps the slow idle bob
+      const bob = F.ph !== undefined
+        ? Math.abs(Math.sin(F.ph * Math.PI * 2)) * 0.05
+        : Math.abs(Math.sin(t * (F.pos[2] < 2 ? 6.4 : 2.0))) * (F.pos[2] < 2 ? 0.045 : 0.015);
       const pulse = 1 + Math.sin(t * 12) * 0.02;
       this.stageActor(this.figure, `fig-${F.side ? "side" : "front"}`, (p) => drawFireFigure(p, F.side),
         F.pos[0], F.pos[1] + bob, F.pos[2], camX, camZ, false, F.scale * pulse, 0);
